@@ -15,6 +15,36 @@
             
             <h3 class="mb-3">{{ profile.user.username }}</h3>
         </div>
+           <div class="d-flex justify-content-center align-items-center flex-column flex-wrap mt-3 gap-2">
+    <div class="d-flex gap-3 mt-2">
+        <a href="{% url 'followers_list' profile.user.username %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+                <span class="fw-bold d-block fs-5 text-secondary">{{ profile.followers.count }}</span>
+                <small class="text-primary">Followers</small>
+            </div>
+        </a>
+        <a href="{% url 'following_list' profile.user.username %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+                <span class="fw-bold d-block fs-5 text-secondary">{{ profile.following.count }}</span>
+                <small class="text-primary">Following</small>
+            </div>
+        </a>
+    </div>
+     {% if request.user != profile.user %}
+        {% if profile in request.user.userprofile.following.all %}
+            <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-danger px-4 py-2 my-3 rounded-pill shadow-sm">
+                <i class="fas fa-user-minus me-1"></i> Unfollow
+            </a>
+        {% else %}
+            <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-primary px-4 py-2 my-3 rounded-pill shadow-sm">
+                <i class="fas fa-user-plus me-1"></i> Follow
+            </a>
+        {% endif %}
+    {% endif %}
+</div>
+
+
+
     </div>
 
     <!-- Bio Section -->
