@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserAccount
+from .models import UserAccount, UserProfile
 
 class RegisterForm(forms.ModelForm):
     class Meta:
@@ -54,3 +54,17 @@ class LoginForm(forms.Form):
             raise forms.ValidationError("Both fields are required.")
         
         return cleaned_data
+    
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'picture', 'location', 'birth_date']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
+            'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['picture'].widget.attrs.update({'class': 'form-control'})
