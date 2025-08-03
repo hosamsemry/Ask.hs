@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <a href="{% url 'profile' viewing_user.username %}" class="btn btn-outline-secondary mb-3"> Back to profile</a>
+    <h2>{{ viewing_user.username }}'s {{ list_type }}</h2>
+    <ul class="list-group mt-3">
+        {% for profile in profiles %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{% url 'profile' profile.user.username %}" class="text-decoration-none fw-bold text-primary">
+                    {{ profile.user.username }}
+                </a>
+                <span>{{profile.bio}}</span>
+                {% if request.user.userprofile != profile %}
+                    {% if profile in request.user.userprofile.following.all %}
+                        <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-sm btn-outline-danger">Unfollow</a>
+                    {% else %}
+                        <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-sm btn-outline-primary">Follow</a>
+                    {% endif %}
+                {% endif %}
+
+                {% if viewing_user == request.user %}
+                    <form action="{% url 'remove_follower' profile.user.username %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-warning">Remove</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">No {{ list_type|lower }} found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
