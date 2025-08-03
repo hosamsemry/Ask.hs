@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy, reverse
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.views.generic.detail import DetailView
 from django.shortcuts import get_object_or_404
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, UserProfileForm
 from django.contrib.auth import logout
 from django.contrib import messages
 from .models import UserProfile
@@ -50,3 +51,14 @@ class UserProfileView(DetailView):
 
     def get_object(self):
         return get_object_or_404(UserProfile, user__username=self.kwargs['username'])
+    
+class EditProfileView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'accounts/edit_profile.html'
+
+    def get_object(self):
+        return self.request.user.userprofile
+
+    def get_success_url(self):
+        return reverse_lazy('profile', kwargs={'username': self.request.user.username})
