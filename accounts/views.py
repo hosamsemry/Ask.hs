@@ -56,6 +56,12 @@ class UserProfileView(DetailView):
     def get_object(self):
         return get_object_or_404(UserProfile, user__username=self.kwargs['username'])
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object().user
+        context['questions'] = user.questions_received.filter(is_deleted = False)
+        return context
+    
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
