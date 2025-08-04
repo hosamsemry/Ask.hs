@@ -72,7 +72,7 @@ class UnansweredQuestionListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Question.objects.filter(
             receiver=self.request.user,
-            answer__isnull=True
+            answer__isnull=True,is_deleted=False
         ).order_by('-created_at')
     
 
