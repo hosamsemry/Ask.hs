@@ -7,7 +7,18 @@ class QuestionForm(forms.ModelForm):
         model = Question
         fields = ['content', 'is_anonymous']
         widgets = {
-            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control mb-3',
+                'rows': 3,
+                'placeholder': 'Type your question here...',
+            }),
+            'is_anonymous': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+            }),
+        }
+        labels = {
+            'content': 'Your Question',
+            'is_anonymous': 'Ask anonymously',
         }
 
 
@@ -16,5 +27,12 @@ class AnswerForm(forms.ModelForm):
         model = Answer
         fields = ['content']
         widgets = {
-            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control mb-3',
+                'rows': 4,
+                'placeholder': 'Write your answer here...',
+            }),
+        }
+        labels = {
+            'content': 'Your Answer',
         }
