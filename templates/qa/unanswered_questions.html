@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Questions{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-primary mb-3">
+        <i class="fas fa-arrow-left me-1"></i> Back to Profile
+    </a>
+    <h2 class="mb-4">Questions</h2>
+
+    {% if questions %}
+        <div class="list-group">
+            {% for question in questions %}
+                <div class="list-group-item list-group-item-action mb-3 shadow-sm rounded border d-flex flex-column flex-md-row justify-content-between align-items-start p-3 bg-light">
+                    <div class="flex-grow-1 me-3">
+                        <div class="mb-1 text-muted small">
+                            {% if question.sender %}
+                                From: <a href="{% url 'profile' question.sender %}" class="fw-semibold text-decoration-none">{{ question.sender.username }}</a>
+                            {% else %}
+                                <span class="fw-semibold">From: Anonymous</span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2 fs-5">{{ question.content }}</p>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'answer_question' question.id %}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-reply me-1"></i> Answer
+                            </a>
+                            <form method="POST" action="{% url 'delete_question' question.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            You have no unanswered questions.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
