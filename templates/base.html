@@ -10,23 +10,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Custom CSS (optional) -->
     <style>
-        body {
-            padding-top: 70px;
-            background-color: #f8f9fa;
-        }
-        .navbar-brand {
-            font-weight: bold;
-        }
-        footer {
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px 0;
-            background-color: #343a40;
-            color: white;
-            text-align: center;
-            z-index: 1000;
-        }
+        html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    bottom:0;
+}
     </style>
 </head>
 <body>
@@ -73,14 +77,14 @@
 </div>
 
 <!-- Main Content -->
-<div class="container">
+<main class="container">
     {% block content %}
     {% endblock %}
-</div>
+</main>
 
 <!-- Footer -->
 <footer>
-    <div class="container">
+    <div>
         <p>&copy; 2025 Ask.hs Built with Django.</p>
     </div>
 </footer>
