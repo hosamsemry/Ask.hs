@@ -8,11 +8,12 @@ from django.shortcuts import get_object_or_404
 from .forms import RegisterForm, LoginForm, UserProfileForm
 from django.contrib.auth import logout
 from django.contrib import messages
-from .models import UserProfile
+from .models import UserProfile, ProfileVisit
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.contrib.auth import get_user_model
-
+from django.utils import timezone
+from django.utils.decorators import method_decorator
 User = get_user_model()
 
 class RegisterView(FormView):
@@ -55,12 +56,29 @@ class UserProfileView(DetailView):
 
     def get_object(self):
         return get_object_or_404(UserProfile, user__username=self.kwargs['username'])
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.get_object().user
-        context['questions'] = user.questions_received.filter(is_deleted = False)
+        profile = self.get_object()
+        profile_user = profile.user
+
+        if self.request.user.is_authenticated and self.request.user != profile_user:
+            profile.visit_count += 1
+            profile.save()
+
+            ProfileVisit.objects.create(
+                visitor=self.request.user,
+                visited=profile_user,
+                timestamp=timezone.now()
+            )
+
+        context['questions'] = profile_user.questions_received.filter(is_deleted=False)
+
+        if self.request.user == profile_user and profile.is_premium:
+            context['visitors'] = ProfileVisit.objects.filter(visited=profile_user).order_by('-timestamp')
+
         return context
+
     
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
