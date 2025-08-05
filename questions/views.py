@@ -7,8 +7,9 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Question, Answer    
+from .models import Question, Answer, AnswerLike
 from .forms import QuestionForm, AnswerForm
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -83,3 +84,14 @@ def delete_question(request, question_id):
     question.is_deleted = True
     question.save()
     return redirect('profile', request.user.username)
+
+@login_required
+def toggle_like(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id)
+    if request.method == 'POST':
+        if request.user in answer.likes.all():
+            answer.likes.remove(request.user)
+        else:
+            answer.likes.add(request.user)
+        return JsonResponse({'likes_count': answer.likes.count()})
+    return JsonResponse({'error': 'Invalid method'}, status=400)
