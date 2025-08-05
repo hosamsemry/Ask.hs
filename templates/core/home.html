@@ -34,6 +34,18 @@
                 <hr>
                 <p><strong>A:</strong> {{ answer.content }}</p>
             </div>
+
+            {% if user.is_authenticated %}
+                <div class="card-footer bg-white border-0 d-flex justify-content-start align-items-center">
+                    <form class="like-form" data-answer-id="{{ answer.id }}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm like-button d-flex align-items-center gap-1" data-bs-toggle="tooltip" data-bs-title="Like this answer">
+                            <i class="fa-solid fa-heart"></i>
+                            <span class="like-count">{{ answer.likes_count }}</span>
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
     {% empty %}
         <div class="alert alert-info text-center mt-5">
@@ -42,4 +54,42 @@
     {% endfor %}
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+
+    document.querySelectorAll(".like-form").forEach(form => {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const answerId = this.dataset.answerId;
+            const url = `/qa/like/${answerId}/`;
+            const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+            const button = this.querySelector(".like-button");
+            const icon = button.querySelector("i");
+            const countSpan = button.querySelector(".like-count");
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!response.ok) throw new Error("Network error");
+
+                const data = await response.json();
+                countSpan.textContent = data.likes_count;
+
+
+            } catch (error) {
+                console.error("Like error:", error);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
