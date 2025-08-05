@@ -6,4 +6,5 @@ urlpatterns = [
     path('answer/<int:question_id>/', AnswerQuestionView.as_view(), name='answer_question'),
     path('unanswered/', UnansweredQuestionListView.as_view(), name='unanswered_questions'),
     path('question/<int:question_id>/delete/', delete_question, name='delete_question'),
+    path('like/<int:answer_id>/', toggle_like, name='toggle_like'),
 ]
