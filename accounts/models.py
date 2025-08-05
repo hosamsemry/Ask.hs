@@ -19,6 +19,8 @@ class UserProfile(models.Model):
     location = models.CharField(max_length=255, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
+    visit_count = models.PositiveIntegerField(default=0)
+    is_premium = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.email
