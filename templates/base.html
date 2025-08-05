@@ -31,6 +31,15 @@
         padding: 20px 0;
         bottom:0;
     }
+    #user-search-results a {
+        padding: 10px 15px;
+        color: #333;
+        transition: background-color 0.2s ease;
+    }
+    #user-search-results a:hover {
+        background-color: #f8f9fa;
+        text-decoration: none;
+    }
     </style>
 </head>
 <body>
@@ -39,9 +48,27 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Ask.hs</a>
+        <form class="position-relative  w-50 mx-2" role="search" id="user-search-form" autocomplete="off">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <input 
+                    type="search" 
+                    class="form-control" 
+                    placeholder="Search users..." 
+                    id="user-search-input" 
+                    aria-label="Search users">
+            </div>
+            <div 
+                id="user-search-results" 
+                class="position-absolute bg-white border shadow rounded mt-1 w-100 d-none overflow-auto"
+                style="z-index: 1050; max-height: 250px;"
+                role="listbox"
+            ></div>
+        </form>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+        
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
@@ -54,7 +81,7 @@
                         <a class="nav-link" href="{% url 'unanswered_questions'%}">Questions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link ms-4" href="{% url 'logout' %}">Logout</a>
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
@@ -68,6 +95,8 @@
         </div>
     </div>
 </nav>
+
+
 
 <!-- Messages -->
 <div class="container mt-5">
@@ -96,6 +125,48 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    const input = $("#user-search-input");
+    const resultsBox = $("#user-search-results");
+
+    input.on("input", function() {
+        const query = $(this).val().trim();
+        if (!query) {
+            resultsBox.empty().addClass("d-none");
+            return;
+        }
+
+        $.ajax({
+            url: "{% url 'search_users' %}",
+            data: { q: query },
+            success: function(response) {
+                const users = response.users;
+                resultsBox.empty();
+
+                if (users.length === 0) {
+                    resultsBox.append("<div class='p-2'>No users found</div>");
+                } else {
+                    users.forEach(user => {
+                        resultsBox.append(
+                            `<a href="/accounts/u/${user.username}/" class="list-group-item list-group-item-action border-0">${user.username}</a>`
+                        );
+                    });
+                }
+                resultsBox.removeClass("d-none");
+            }
+        });
+    });
+
+    // Hide results on outside click
+    $(document).on("click", function(e) {
+        if (!$(e.target).closest("#user-search-form").length) {
+            resultsBox.empty().addClass("d-none");
+        }
+    });
+});
+</script>
 
 </body>
 </html>
