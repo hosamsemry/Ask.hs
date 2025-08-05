@@ -22,10 +22,16 @@ class Answer(models.Model):
     responder = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='answers')
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='AnswerLike', related_name='liked_answer')
 
     def __str__(self):
         return f"Answer to {self.question.to_user.username}"
+    @property
+    def likes_count(self):
+        return self.likes.count()
+
+    def is_liked_by(self, user):
+        return self.likes.filter(user=user).exists()
     
 
 from django.db import models
@@ -33,7 +39,7 @@ from django.conf import settings
 
 class AnswerLike(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='likes')
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='liked')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
