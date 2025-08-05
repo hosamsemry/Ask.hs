@@ -24,3 +24,10 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.email
+
+class ProfileVisit(models.Model):
+    visitor = models.ForeignKey(UserAccount, related_name='visits_made', on_delete=models.CASCADE)
+    visited = models.ForeignKey(UserAccount, related_name='visits_received', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+ 
