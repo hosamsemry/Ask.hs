@@ -144,8 +144,40 @@ def remove_follower(request, username):
         follower_profile = follower_user.userprofile
         current_user_profile = request.user.userprofile
 
-        # Remove yourself from the follower's 'following'
         if current_user_profile in follower_profile.following.all():
             follower_profile.following.remove(current_user_profile)
 
     return redirect('followers_list', request.user.username)
+
+@method_decorator(login_required, name='dispatch')
+class ProfileVisitorsView(ListView):
+    model = ProfileVisit
+    template_name = 'accounts/profile_visitors.html'
+    context_object_name = 'visits'
+
+    def get_queryset(self):
+        profile_user = get_object_or_404(UserProfile, user__username=self.kwargs['username']).user
+
+        if self.request.user != profile_user:
+            return ProfileVisit.objects.none()
+
+        if not self.request.user.userprofile.is_premium:
+            return ProfileVisit.objects.none()
+
+        return ProfileVisit.objects.filter(visited=profile_user).order_by('-timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile_user'] = get_object_or_404(UserProfile, user__username=self.kwargs['username']).user
+        return context
+    
+@method_decorator(login_required, name='dispatch')
+class SubscribeView(TemplateView):
+    template_name = 'accounts/subscribe.html'
+
+    def post(self, request, *args, **kwargs):
+        profile = request.user.userprofile
+        profile.is_premium = True
+        profile.save()
+        messages.success(request, "You’ve successfully upgraded to premium!")
+        return redirect('profile', username=request.user.username)
