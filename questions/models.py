@@ -25,7 +25,7 @@ class Answer(models.Model):
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='AnswerLike', related_name='liked_answer')
 
     def __str__(self):
-        return f"Answer to {self.question.to_user.username}"
+        return f"Answer to {self.question.receiver.username}"
     @property
     def likes_count(self):
         return self.likes.count()
