@@ -9,11 +9,14 @@ from .forms import RegisterForm, LoginForm, UserProfileForm
 from django.contrib.auth import logout
 from django.contrib import messages
 from .models import UserProfile, ProfileVisit
+from questions.models import Answer
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, TemplateView
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.db.models import Prefetch
+from django.db import models
 User = get_user_model()
 
 class RegisterView(FormView):
@@ -55,7 +58,12 @@ class UserProfileView(DetailView):
     context_object_name = 'profile'
 
     def get_object(self):
-        return get_object_or_404(UserProfile, user__username=self.kwargs['username'])
+        if not hasattr(self, '_cached_profile'):
+            self._cached_profile = get_object_or_404(
+                UserProfile.objects.select_related('user'),
+                user__username=self.kwargs['username']
+            )
+        return self._cached_profile
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -63,8 +71,7 @@ class UserProfileView(DetailView):
         profile_user = profile.user
 
         if self.request.user.is_authenticated and self.request.user != profile_user:
-            profile.visit_count += 1
-            profile.save()
+            UserProfile.objects.filter(pk=profile.pk).update(visit_count=models.F('visit_count') + 1)
 
             ProfileVisit.objects.create(
                 visitor=self.request.user,
@@ -72,10 +79,28 @@ class UserProfileView(DetailView):
                 timestamp=timezone.now()
             )
 
-        context['questions'] = profile_user.questions_received.filter(is_deleted=False)
+        questions = (
+            profile_user.questions_received
+            .filter(is_deleted=False)
+            .select_related('sender')
+            .prefetch_related(
+                Prefetch(
+                    'answer',
+                    queryset=Answer.objects.select_related('responder', 'question')
+                                        .prefetch_related('likes')
+                )
+            )
+        )
+
+        context['questions'] = questions
 
         if self.request.user == profile_user and profile.is_premium:
-            context['visitors'] = ProfileVisit.objects.filter(visited=profile_user).order_by('-timestamp')
+            context['visitors'] = (
+                ProfileVisit.objects
+                .filter(visited=profile_user)
+                .select_related('visitor')  # avoids query per visitor
+                .order_by('-timestamp')
+            )
 
         return context
 
