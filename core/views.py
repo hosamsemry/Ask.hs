@@ -5,8 +5,13 @@ from accounts.models import UserProfile
 from django.http import JsonResponse
 from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.utils.encoding import force_str
 
 User = get_user_model()
+from django.core.cache import cache
+from django.utils.encoding import force_str
+
 class Home(LoginRequiredMixin, ListView):
     model = Answer
     template_name = 'core/home.html'
@@ -14,6 +19,14 @@ class Home(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
+        user_id = self.request.user.id
+        page_number = force_str(self.request.GET.get('page', 1))
+        cache_key = f"user_feed:{user_id}:page:{page_number}"
+
+        queryset = cache.get(cache_key)
+        if queryset is not None:
+            return queryset
+
         user_profile = (
             UserProfile.objects
             .prefetch_related('following__user')
@@ -21,7 +34,7 @@ class Home(LoginRequiredMixin, ListView):
         )
         following_users_ids = user_profile.following.all().values_list('user__id', flat=True)
 
-        return (
+        queryset = (
             Answer.objects
             .filter(responder__in=following_users_ids)
             .select_related(
@@ -31,6 +44,9 @@ class Home(LoginRequiredMixin, ListView):
             ).prefetch_related('likes')
             .order_by('-created_at')
         )
+
+        cache.set(cache_key, queryset, timeout=120)
+        return queryset
 
 
 def search_users(request):
