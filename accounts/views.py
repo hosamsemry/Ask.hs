@@ -15,6 +15,7 @@ from django.views.generic import ListView, TemplateView
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
 from django.db import models
 User = get_user_model()
@@ -180,20 +181,31 @@ class ProfileVisitorsView(ListView):
     template_name = 'accounts/profile_visitors.html'
     context_object_name = 'visits'
 
+    def dispatch(self, request, *args, **kwargs):
+        self.profile_user = get_object_or_404(
+            User.objects.select_related('userprofile'),
+            username=self.kwargs['username']
+        )
+
+        if request.user != self.profile_user:
+            raise PermissionDenied("You are not allowed to view this page.")
+
+        if not self.profile_user.userprofile.is_premium:
+            raise PermissionDenied("Upgrade to premium to view profile visitors.")
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
-        profile_user = get_object_or_404(UserProfile, user__username=self.kwargs['username']).user
-
-        if self.request.user != profile_user:
-            return ProfileVisit.objects.none()
-
-        if not self.request.user.userprofile.is_premium:
-            return ProfileVisit.objects.none()
-
-        return ProfileVisit.objects.filter(visited=profile_user).order_by('-timestamp')
+        return (
+            ProfileVisit.objects
+            .filter(visited=self.profile_user)
+            .select_related('visitor', 'visitor__userprofile')
+            .order_by('-timestamp')
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['profile_user'] = get_object_or_404(UserProfile, user__username=self.kwargs['username']).user
+        context['profile_user'] = self.profile_user
         return context
     
 @method_decorator(login_required, name='dispatch')
