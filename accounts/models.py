@@ -29,5 +29,11 @@ class ProfileVisit(models.Model):
     visitor = models.ForeignKey(UserAccount, related_name='visits_made', on_delete=models.CASCADE)
     visited = models.ForeignKey(UserAccount, related_name='visits_received', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+    visit_count = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['visitor', 'visited']),
+        ]
 
  
