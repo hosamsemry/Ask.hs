@@ -8,4 +8,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('core/', include('core.urls')),
     path('qa/', include('questions.urls')),
+    path('notifications/', include('user_notifications.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
