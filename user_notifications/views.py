@@ -79,3 +79,27 @@ def mark_all_notifications_as_read(request):
     notifications = Notification.objects.filter(recipient=request.user, is_read=False)
     notifications.update(is_read=True)
     return JsonResponse({"success": True})
+
+
+@login_required
+def all_notifications(request):
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
+
+    data = []
+    for n in notifications:
+        if n.answer:
+            url = f"/qa/answers/{n.answer.id}/"
+        elif n.sender:
+            url = f"/profile/{n.sender.username}/"
+        else:
+            url = "#"
+
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "timestamp": n.timestamp,
+            "is_read": n.is_read,
+            "url": url,
+        })
+
+    return render(request, 'notifications/all_notifications.html', {'notifications': data})
