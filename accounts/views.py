@@ -18,6 +18,7 @@ from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
 from django.db import models
+from user_notifications.views import send_follow_notification
 User = get_user_model()
 
 class RegisterView(FormView):
@@ -129,6 +130,7 @@ def toggle_follow(request, username):
             current_profile.following.remove(target_profile)
         else:
             current_profile.following.add(target_profile)
+            send_follow_notification(followed_user=target_user, follower_user=request.user)
 
     next_url = request.META.get('HTTP_REFERER', reverse('profile', args=[username]))
     return redirect(next_url)
