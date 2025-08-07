@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'accounts',
     'questions',
     'core',
+    'user_notifications',
     'channels'
 ]
 ASGI_APPLICATION = 'project.asgi.application'
