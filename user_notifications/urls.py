@@ -5,5 +5,5 @@ urlpatterns = [
     path('fetch/', fetch_notifications, name='fetch_notifications'),
     path('mark-as-read/<int:notification_id>/', mark_notification_as_read, name='mark_notification_as_read'),
     path('mark-all-read/', mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
-    path('/', all_notifications, name='all_notifications'),
+    path('', all_notifications, name='all_notifications'),
 ]
