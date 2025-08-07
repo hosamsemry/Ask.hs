@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from .models import Question, Answer, AnswerLike
 from .forms import QuestionForm, AnswerForm
 from django.http import JsonResponse
-
+from user_notifications.views import send_like_notification
 User = get_user_model()
 
 
@@ -93,5 +93,6 @@ def toggle_like(request, answer_id):
             answer.likes.remove(request.user)
         else:
             answer.likes.add(request.user)
+            send_like_notification(user=answer.responder, liker=request.user)
         return JsonResponse({'likes_count': answer.likes.count()})
     return JsonResponse({'error': 'Invalid method'}, status=400)
