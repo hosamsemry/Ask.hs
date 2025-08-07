@@ -93,6 +93,16 @@ def toggle_like(request, answer_id):
             answer.likes.remove(request.user)
         else:
             answer.likes.add(request.user)
-            send_like_notification(user=answer.responder, liker=request.user)
+            send_like_notification(user=answer.responder, liker=request.user, answer=answer)
         return JsonResponse({'likes_count': answer.likes.count()})
     return JsonResponse({'error': 'Invalid method'}, status=400)
+
+def answer_detail(request, pk):
+    answer = get_object_or_404(Answer, pk=pk)
+    likers = answer.likes.all()
+
+    return render(request, "qa/answer_detail.html", {
+        "answer": answer,
+        "question": answer.question,
+        "likers": likers
+    })
