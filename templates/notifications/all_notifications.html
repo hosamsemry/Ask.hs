@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-semibold">
+      <i class="fas fa-bell me-2 text-primary"></i> Notifications
+    </h3>
+    <button class="btn btn-outline-primary btn-sm shadow-sm" onclick="markAllAsRead()">
+      <i class="fas fa-check-double me-1"></i> Mark All as Read
+    </button>
+  </div>
+
+  <ul class="list-group shadow-sm">
+    {% for n in notifications %}
+      <li class="list-group-item d-flex flex-column gap-1 {% if not n.is_read %}list-group-item-warning bg-opacity-25{% endif %}">
+        <div class="d-flex justify-content-between align-items-start">
+          <a href="{{ n.url }}" class="text-decoration-none {% if not n.is_read %}fw-semibold text-dark{% else %}text-body{% endif %}">
+            <i class="fas fa-info-circle me-2 text-secondary"></i> {{ n.message }}
+          </a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center small text-muted">
+          <span><i class="far fa-clock me-1"></i> {{ n.timestamp }}</span>
+          {% if not n.is_read %}
+            <span class="badge bg-warning text-dark">Unread</span>
+          {% endif %}
+        </div>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted text-center py-4">
+        <i class="fas fa-inbox fa-2x mb-2 text-muted"></i><br>
+        No notifications yet.
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  function markAllAsRead() {
+    fetch("{% url 'mark_all_notifications_as_read' %}")
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          location.reload();
+        }
+      });
+  }
+</script>
+{% endblock %}
