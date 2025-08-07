@@ -7,4 +7,5 @@ urlpatterns = [
     path('unanswered/', UnansweredQuestionListView.as_view(), name='unanswered_questions'),
     path('question/<int:question_id>/delete/', delete_question, name='delete_question'),
     path('like/<int:answer_id>/', toggle_like, name='toggle_like'),
+    path("answers/<int:pk>/", answer_detail, name="answer_detail"),
 ]
