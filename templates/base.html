@@ -40,6 +40,12 @@
         background-color: #f8f9fa;
         text-decoration: none;
     }
+    .dropdown-menu li.dropdown-item {
+        font-size: 14px;
+        padding: 8px 16px;
+        white-space: normal;
+    }
+
     </style>
 </head>
 <body>
@@ -72,6 +78,15 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    🔔 <span class="badge bg-danger" id="notification-count">0</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notification-list" style="max-height: 300px; overflow-y: auto;">
+    <li class="dropdown-header">Notifications</li>
+    <!-- Notifications will be injected here -->
+  </ul>
+</li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' user.username %}">Profile</a>
                     </li>
@@ -165,6 +180,100 @@ $(document).ready(function() {
             resultsBox.empty().addClass("d-none");
         }
     });
+    const userId = "{{ request.user.id }}";
+const notificationList = document.getElementById("notification-list");
+const countBadge = document.getElementById("notification-count");
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+// 🟩 Load notifications from server on page load
+fetch("/notifications/fetch/")
+    .then(response => response.json())
+    .then(data => {
+        let count = data.notifications.length;
+
+        if (count > 0) {
+            countBadge.textContent = count;
+            countBadge.classList.remove("d-none");
+
+            data.notifications.forEach(notif => {
+                const item = document.createElement("li");
+item.classList.add("dropdown-item", "d-flex", "justify-content-between", "align-items-center");
+
+const text = document.createElement("span");
+text.textContent = notif.message;
+
+const markBtn = document.createElement("button");
+markBtn.innerHTML = "✔️";
+markBtn.classList.add("btn", "btn-sm", "btn-link", "text-success", "p-0", "ms-2");
+markBtn.setAttribute("title", "Mark as read");
+
+markBtn.addEventListener("click", () => {
+    fetch(`/notifications/mark-as-read/${notif.id}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            item.remove(); // remove the notification from the list
+            let currentCount = parseInt(countBadge.textContent) || 0;
+            let newCount = currentCount - 1;
+            countBadge.textContent = newCount;
+            if (newCount === 0) countBadge.classList.add("d-none");
+        }
+    });
+});
+
+item.appendChild(text);
+item.appendChild(markBtn);
+notificationList.appendChild(item);
+
+            });
+        }
+    });
+
+// 🟨 WebSocket - receive new notification
+const notificationSocket = new WebSocket(
+    "ws://" + window.location.host + "/ws/notifications/" + userId + "/"
+);
+
+notificationSocket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    const message = data.message;
+
+    const newItem = document.createElement("li");
+    newItem.classList.add("dropdown-item");
+    newItem.textContent = message;
+
+    notificationList.appendChild(newItem);
+
+    let count = parseInt(countBadge.textContent) || 0;
+    countBadge.textContent = count + 1;
+    countBadge.classList.remove("d-none");
+};
+
+notificationSocket.onclose = function (e) {
+    console.error("WebSocket closed unexpectedly");
+};
+
 });
 </script>
 
