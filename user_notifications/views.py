@@ -3,11 +3,12 @@ from asgiref.sync import async_to_sync
 from .models import Notification
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 
 def send_like_notification(user, liker, answer):
     message = f"{liker.username} liked your answer."
-    notification = Notification.objects.create(recipient=user, message=message,answer=answer,)
+    notification = Notification.objects.create(recipient=user, message=message,answer=answer,sender=liker,)
 
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
@@ -71,3 +72,10 @@ def mark_notification_as_read(request, notification_id):
         except Notification.DoesNotExist:
             return JsonResponse({"success": False, "error": "Not found"}, status=404)
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+
+
+@login_required
+def mark_all_notifications_as_read(request):
+    notifications = Notification.objects.filter(recipient=request.user, is_read=False)
+    notifications.update(is_read=True)
+    return JsonResponse({"success": True})
