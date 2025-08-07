@@ -19,6 +19,24 @@ def send_like_notification(user, liker, answer):
         }
     )
 
+def send_follow_notification(followed_user, follower_user):
+    message = f"{follower_user.username} started following you."
+    notification = Notification.objects.create(
+        recipient=followed_user,
+        sender=follower_user,
+        message=message
+    )
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'notifications_{followed_user.id}',
+        {
+            'type': 'send_notification',
+            'message': message,
+            'notification_id': notification.id,
+        }
+    )
+
 
 @login_required
 def fetch_notifications(request):
