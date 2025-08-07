@@ -41,16 +41,21 @@ def send_follow_notification(followed_user, follower_user):
 @login_required
 def fetch_notifications(request):
     notifications = Notification.objects.filter(recipient=request.user, is_read=False).order_by('-timestamp')
-    data = [
-        {
+    data = []
+    for n in notifications:
+        if n.answer:
+            url = f"/qa/answers/{n.answer.id}/"
+        elif n.sender:
+            url = f"/profile/{n.sender.username}/"
+        else:
+            url = "#"
+
+        data.append({
             "id": n.id,
             "message": n.message,
             "timestamp": n.timestamp.strftime("%Y-%m-%d %H:%M"),
-            "answer_id": n.answer.id if n.answer else None,
-            "url": f"/qa/answers/{n.answer.id}/" if n.answer else "#"
-        }
-        for n in notifications
-    ]
+            "url": url
+        })
     return JsonResponse({"notifications": data})
 
 
