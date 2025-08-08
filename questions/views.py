@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from .models import Question, Answer, AnswerLike
 from .forms import QuestionForm, AnswerForm
 from django.http import JsonResponse
-from user_notifications.views import send_like_notification
+from user_notifications.views import send_like_notification, send_question_notification
 User = get_user_model()
 
 
@@ -28,6 +28,7 @@ class AskQuestionView(LoginRequiredMixin, FormView):
         if not form.cleaned_data['is_anonymous']:
             question.sender = self.request.user
         question.save()
+        send_question_notification(user= question.receiver, sender=self.request.user)
         return redirect('profile', username=self.receiver.username)
 
     def get_context_data(self, **kwargs):

@@ -38,6 +38,19 @@ def send_follow_notification(followed_user, follower_user):
         }
     )
 
+def send_question_notification(user, sender):
+    message = "You have a new question!"
+    notification = Notification.objects.create(recipient=user, message=message,sender=sender)
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'notifications_{user.id}',
+        {
+            'type': 'send_notification',
+            'message': message,
+            'notification_id': notification.id,
+        }
+    )
 
 @login_required
 def fetch_notifications(request):
@@ -46,8 +59,10 @@ def fetch_notifications(request):
     for n in notifications:
         if n.answer:
             url = f"/qa/answers/{n.answer.id}/"
+        elif 'question!' in n.message:
+            url = "/qa/unanswered/"
         elif n.sender:
-            url = f"/profile/{n.sender.username}/"
+            url = f"/accounts/u/{n.sender.username}/"
         else:
             url = "#"
 
@@ -89,8 +104,10 @@ def all_notifications(request):
     for n in notifications:
         if n.answer:
             url = f"/qa/answers/{n.answer.id}/"
+        elif 'question!' in n.message:
+            url = "/qa/unanswered/"
         elif n.sender:
-            url = f"/profile/{n.sender.username}/"
+            url = f"/accounts/u/{n.sender.username}/"
         else:
             url = "#"
 
