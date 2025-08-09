@@ -215,19 +215,21 @@ $(document).ready(function() {
         }
         return cookieValue;
     }
-    function markAllAsRead() {
+window.markAllAsRead = function () {
     fetch("{% url 'mark_all_notifications_as_read' %}")
       .then(response => response.json())
       .then(data => {
         if (data.success) {
           document.getElementById('notification-count').textContent = '0';
+          document.getElementById('notification-count').classList.add('d-none');
 
-          document.querySelectorAll('#notification-items li a').forEach(item => {
+          document.querySelectorAll('#notification-list .dropdown-item a').forEach(item => {
             item.classList.remove('fw-bold');
           });
         }
       });
-  }
+};
+
 
     // 🟩 Load notifications from server on page load
     fetch("/notifications/fetch/")
