@@ -52,6 +52,20 @@ def send_question_notification(user, sender):
         }
     )
 
+def answer_question_notification(user, answer):
+    message = "Your question has been answered!"
+    notification = Notification.objects.create(recipient=user, message=message,answer=answer,sender=answer.responder)
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'notifications_{user.id}',
+        {
+            'type': 'send_notification',
+            'message': message,
+            'notification_id': notification.id,
+        }
+    )
+
 @login_required
 def fetch_notifications(request):
     notifications = Notification.objects.filter(recipient=request.user, is_read=False).order_by('-timestamp')
@@ -61,6 +75,8 @@ def fetch_notifications(request):
             url = f"/qa/answers/{n.answer.id}/"
         elif 'question!' in n.message:
             url = "/qa/unanswered/"
+        elif 'answered!' in n.message:
+            url = f"/qa/answers/{n.answer.id}"
         elif n.sender:
             url = f"/accounts/u/{n.sender.username}/"
         else:

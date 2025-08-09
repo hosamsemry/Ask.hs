@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from .models import Question, Answer, AnswerLike
 from .forms import QuestionForm, AnswerForm
 from django.http import JsonResponse
-from user_notifications.views import send_like_notification, send_question_notification
+from user_notifications.views import send_like_notification, send_question_notification, answer_question_notification
 User = get_user_model()
 
 
@@ -59,6 +59,7 @@ class AnswerQuestionView(LoginRequiredMixin, View):
             answer.responder = request.user
             answer.question = self.question
             answer.save()
+            answer_question_notification(user=self.question.sender, answer=answer)
             self.question.is_answered = True
             self.question.save()
             return redirect('profile', username=request.user.username)
