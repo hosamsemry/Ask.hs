@@ -19,6 +19,8 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch
 from django.db import models
 from user_notifications.views import send_follow_notification
+from django.core.cache import cache
+
 User = get_user_model()
 
 class RegisterView(FormView):
@@ -61,10 +63,17 @@ class UserProfileView(DetailView):
 
     def get_object(self):
         if not hasattr(self, '_cached_profile'):
-            self._cached_profile = get_object_or_404(
-                UserProfile.objects.select_related('user'),
-                user__username=self.kwargs['username']
-            )
+            cache_key = f"profile:{self.kwargs['username']}"
+            profile = cache.get(cache_key)
+
+            if profile is None:
+                profile = get_object_or_404(
+                    UserProfile.objects.select_related('user'),
+                    user__username=self.kwargs['username']
+                )
+                cache.set(cache_key, profile, timeout=120)
+
+            self._cached_profile = profile
         return self._cached_profile
 
     def get_context_data(self, **kwargs):
@@ -73,7 +82,9 @@ class UserProfileView(DetailView):
         profile_user = profile.user
 
         if self.request.user.is_authenticated and self.request.user != profile_user:
-            UserProfile.objects.filter(pk=profile.pk).update(visit_count=models.F('visit_count') + 1)
+            UserProfile.objects.filter(pk=profile.pk).update(
+                visit_count=models.F('visit_count') + 1
+            )
 
             ProfileVisit.objects.create(
                 visitor=self.request.user,
@@ -81,31 +92,41 @@ class UserProfileView(DetailView):
                 timestamp=timezone.now()
             )
 
-        questions = (
-            profile_user.questions_received
-            .filter(is_deleted=False)
-            .select_related('sender')
-            .prefetch_related(
-                Prefetch(
-                    'answer',
-                    queryset=Answer.objects.select_related('responder', 'question')
-                                        .prefetch_related('likes')
+        cache_key_questions = f"profile:{profile_user.id}:questions"
+        questions = cache.get(cache_key_questions)
+        if questions is None:
+            questions_qs = (
+                profile_user.questions_received
+                .filter(is_deleted=False)
+                .select_related('sender')
+                .prefetch_related(
+                    Prefetch(
+                        'answer',
+                        queryset=Answer.objects.select_related('responder', 'question')
+                                                .prefetch_related('likes')
+                    )
                 )
             )
-        )
+            questions = list(questions_qs)
+            cache.set(cache_key_questions, questions, timeout=120)
 
         context['questions'] = questions
 
         if self.request.user == profile_user and profile.is_premium:
-            context['visitors'] = (
-                ProfileVisit.objects
-                .filter(visited=profile_user)
-                .select_related('visitor')  # avoids query per visitor
-                .order_by('-timestamp')
-            )
+            cache_key_visitors = f"profile:{profile_user.id}:visitors"
+            visitors = cache.get(cache_key_visitors)
+            if visitors is None:
+                visitors_qs = (
+                    ProfileVisit.objects
+                    .filter(visited=profile_user)
+                    .select_related('visitor')
+                    .order_by('-timestamp')
+                )
+                visitors = list(visitors_qs)
+                cache.set(cache_key_visitors, visitors, timeout=120)
+            context['visitors'] = visitors
 
         return context
-
     
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
@@ -138,10 +159,21 @@ def toggle_follow(request, username):
 class FollowersListView(ListView):
     template_name = 'accounts/followers_list.html'
     context_object_name = 'profiles'
+    paginate_by = 10
 
     def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs['username'])
-        return user.userprofile.followers.all()
+        username = self.kwargs['username']
+        page_number = self.request.GET.get('page', 1)
+        cache_key = f"followers:{username}:page:{page_number}"
+
+        queryset = cache.get(cache_key)
+        if queryset is not None:
+            return queryset
+
+        user = get_object_or_404(User, username=username)
+        queryset = user.userprofile.followers.all()
+        cache.set(cache_key, queryset, timeout=120)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -149,21 +181,30 @@ class FollowersListView(ListView):
         context['list_type'] = 'Followers'
         return context
 
-
 class FollowingListView(ListView):
     template_name = 'accounts/following_list.html'
     context_object_name = 'profiles'
+    paginate_by = 10
 
     def get_queryset(self):
-        user = get_object_or_404(User, username=self.kwargs['username'])
-        return user.userprofile.following.all()
+        username = self.kwargs['username']
+        page_number = self.request.GET.get('page', 1)
+        cache_key = f"following:{username}:page:{page_number}"
+
+        queryset = cache.get(cache_key)
+        if queryset is not None:
+            return queryset
+
+        user = get_object_or_404(User, username=username)
+        queryset = user.userprofile.following.all()
+        cache.set(cache_key, queryset, timeout=120)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['viewing_user'] = get_object_or_404(User, username=self.kwargs['username'])
         context['list_type'] = 'Following'
         return context
-
 
 @login_required
 def remove_follower(request, username):
@@ -182,6 +223,7 @@ class ProfileVisitorsView(ListView):
     model = ProfileVisit
     template_name = 'accounts/profile_visitors.html'
     context_object_name = 'visits'
+    paginate_by = 10
 
     def dispatch(self, request, *args, **kwargs):
         self.profile_user = get_object_or_404(
@@ -198,18 +240,27 @@ class ProfileVisitorsView(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return (
+        username = self.kwargs['username']
+        page_number = self.request.GET.get('page', 1)
+        cache_key = f"profile_visitors:{username}:page:{page_number}"
+
+        queryset = cache.get(cache_key)
+        if queryset is not None:
+            return queryset
+
+        queryset = (
             ProfileVisit.objects
             .filter(visited=self.profile_user)
             .select_related('visitor', 'visitor__userprofile')
             .order_by('-timestamp')
         )
+        cache.set(cache_key, queryset, timeout=120)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile_user'] = self.profile_user
-        return context
-    
+        return context 
 @method_decorator(login_required, name='dispatch')
 class SubscribeView(TemplateView):
     template_name = 'accounts/subscribe.html'
