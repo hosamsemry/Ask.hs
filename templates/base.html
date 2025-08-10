@@ -54,6 +54,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Ask.hs</a>
+        {% if user.is_authenticated %}
         <form class="position-relative  w-50 mx-2" role="search" id="user-search-form" autocomplete="off">
             <div class="input-group">
                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
@@ -74,6 +75,7 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+        {% endif %}
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
