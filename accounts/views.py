@@ -55,7 +55,7 @@ def logout_view(request):
     messages.success(request, "You have been logged out successfully.")
     return redirect(reverse('login'))
 
-
+@method_decorator(login_required, name='dispatch')
 class UserProfileView(DetailView):
     model = UserProfile
     template_name = 'accounts/profile.html'
