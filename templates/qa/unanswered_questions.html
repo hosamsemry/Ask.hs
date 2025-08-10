@@ -25,9 +25,9 @@
                             <a href="{% url 'answer_question' question.id %}" class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-reply me-1"></i> Answer
                             </a>
-                            <form method="POST" action="{% url 'delete_question' question.id %}">
+                            <form method="POST" action="{% url 'delete_question' question.id %}" class="delete-question-form d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <button type="button" class="btn btn-outline-danger btn-sm delete-question-btn">
                                     <i class="fas fa-trash-alt me-1"></i> Delete
                                 </button>
                             </form>
@@ -42,4 +42,30 @@
         </div>
     {% endif %}
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.delete-question-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const form = this.closest('form');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This question will be permanently deleted.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#8e959cff',
+                confirmButtonText: 'Yes, delete it!',
+                scrollbarPadding: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
