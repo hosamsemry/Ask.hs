@@ -102,7 +102,8 @@
 
         {% for q in questions %}
             {% if q.is_answered %}
-                <div class="card my-3 shadow-sm border-0">
+                <div class="card my-3 shadow-sm border-0 d-flex flex-row px-3">
+                    
                     <div class="card-body">
                         <p class="mb-2">
                             <strong>
@@ -135,16 +136,17 @@
                                 </div>
                             {% endif %}
 
-                            {% if q.receiver == user %}
-                                <form method="POST" action="{% url 'delete_question' q.id %}" class="mt-2">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            {% endif %}
+                            
                         {% elif request.user == profile.user %}
                             <a href="{% url 'answer_question' q.id %}" class="btn btn-sm btn-outline-primary mt-2">Answer</a>
                         {% endif %}
                     </div>
+                    {% if q.receiver == user %}
+                            <form method="POST" action="{% url 'delete_question' q.id %}" class="mt-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger  delete-question-btn">Delete</button>
+                            </form>
+                        {% endif %}
                 </div>
             {% endif %}
         {% empty %}
@@ -155,7 +157,31 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.delete-question-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            event.preventDefault();
+            const form = this.closest('form');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This question will be permanently deleted.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#8e959cff',
+                confirmButtonText: 'Yes, delete it!',
+                scrollbarPadding: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
 document.addEventListener("DOMContentLoaded", function () {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
