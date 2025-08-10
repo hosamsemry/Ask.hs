@@ -53,6 +53,8 @@ def send_question_notification(user, sender):
     )
 
 def answer_question_notification(user, answer):
+    if not user:
+        return
     message = "Your question has been answered!"
     notification = Notification.objects.create(recipient=user, message=message,answer=answer,sender=answer.responder)
 
