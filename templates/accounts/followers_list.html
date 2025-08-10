@@ -21,7 +21,7 @@
                 {% if viewing_user == request.user %}
                     <form action="{% url 'remove_follower' profile.user.username %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-warning">Remove</button>
+                        <button type="submit" class="btn btn-sm btn-outline-warning remove-follower">Remove</button>
                     </form>
                 {% endif %}
             </li>
@@ -30,4 +30,30 @@
         {% endfor %}
     </ul>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.remove-follower').forEach(button => {
+        button.addEventListener('click', function () {
+            event.preventDefault();
+            const form = this.closest('form');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This follower will be removed permanently.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#8e959cff',
+                confirmButtonText: 'Yes, delete it!',
+                scrollbarPadding: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
