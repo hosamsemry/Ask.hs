@@ -1,13 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container my-4">
 
-<a href="{% url 'profile' receiver.username %}" class="btn btn-outline-primary mb-3">
-    <i class="fas fa-arrow-left me-1"></i> Back to {{ receiver.username }} Profile
-</a>
-  <h2>Ask {{ receiver.username }} a question</h2>
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-success fw-bold" type="submit">Send</button>
-  </form>
+  <!-- Back button -->
+  <a href="{% url 'profile' receiver.username %}" class="btn btn-outline-primary mb-3">
+    <i class="fas fa-arrow-left me-1"></i> Back to {{ receiver.username }}'s Profile
+  </a>
+
+  <!-- Card -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <!-- Title -->
+      <h4 class="card-title mb-3">
+        ✍️ Ask <span class="text-primary">{{ receiver.username }}</span> a Question
+      </h4>
+
+      <!-- Form -->
+      <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          {{ form.as_p }}
+        </div>
+
+        <button class="btn btn-success fw-bold px-4" type="submit">
+          <i class="fas fa-paper-plane me-1"></i> Send Question
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
