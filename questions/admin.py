@@ -4,16 +4,16 @@ from .models import Question, Answer, AnswerLike
 
 
 @admin.register(Question)
-class UsersAdmin(admin.ModelAdmin):
+class QuestionAdmin(admin.ModelAdmin):
     list_display= [
         'sender', 'receiver', 'created_at', 'is_answered'
     ]
 
 
 @admin.register(Answer)
-class UsersAdmin(admin.ModelAdmin):
+class AnswerAdmin(admin.ModelAdmin):
     pass
 
 @admin.register(AnswerLike)
-class UsersAdmin(admin.ModelAdmin):
+class AnswerLikeAdmin(admin.ModelAdmin):
     pass
