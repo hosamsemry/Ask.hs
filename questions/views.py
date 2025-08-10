@@ -11,6 +11,7 @@ from .models import Question, Answer, AnswerLike
 from .forms import QuestionForm, AnswerForm
 from django.http import JsonResponse
 from user_notifications.views import send_like_notification, send_question_notification, answer_question_notification
+from django.core.cache import cache
 User = get_user_model()
 
 
@@ -59,9 +60,12 @@ class AnswerQuestionView(LoginRequiredMixin, View):
             answer.responder = request.user
             answer.question = self.question
             answer.save()
-            answer_question_notification(user=self.question.sender, answer=answer)
             self.question.is_answered = True
-            self.question.save()
+            self.question.save(update_fields=['is_answered'])
+            cache_key_questions = f"profile:{request.user.id}:questions"
+            cache.delete(cache_key_questions)
+            if self.question.sender:
+                answer_question_notification(user=self.question.sender, answer=answer)
             return redirect('profile', username=request.user.username)
         return render(request, self.template_name, {'form': form, 'question': self.question})
 
