@@ -14,7 +14,7 @@ class Question(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"To {self.to_user.username} - {self.content[:30]}"
+        return f"To {self.receiver.username} - {self.content[:30]}"
 
 
 class Answer(models.Model):
