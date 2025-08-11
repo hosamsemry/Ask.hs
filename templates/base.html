@@ -8,56 +8,490 @@
     <!-- Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Custom CSS (optional) -->
+    
     <style>
+    :root {
+        --primary-black: #0a0a0a;
+        --secondary-black: #1a1a1a;
+        --accent-black: #2a2a2a;
+        --dark-gray: #333333;
+        --medium-gray: #4a4a4a;
+        --light-gray: #666666;
+        --neon-blue: #00d4ff;
+        --neon-purple: #8b5cf6;
+        --neon-green: #10b981;
+        --white-text: #ffffff;
+        --light-text: #e5e5e5;
+        --muted-text: #a0a0a0;
+        --glass-bg: rgba(42, 42, 42, 0.8);
+        --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
     html, body {
         height: 100%;
         margin: 0;
+        scroll-behavior: smooth;
     }
 
     body {
         display: flex;
         flex-direction: column;
+        background:var(--primary-black);
+        color: var(--white-text);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+        animation: float 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(1deg); }
+        66% { transform: translateY(10px) rotate(-1deg); }
     }
 
     main {
         flex: 1;
+        position: relative;
+        z-index: 1;
     }
 
-    footer {
-        background-color: #343a40;
-        color: white;
-        text-align: center;
-        padding: 20px 0;
-        bottom:0;
+    /* Navbar Enhancements */
+    .navbar {
+        background: rgba(10, 10, 10, 0.95) !important;
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 1rem 0;
+        transition: all 0.3s ease;
+        position: sticky;
+        top: 0;
+        z-index: 1050;
     }
+
+    .navbar:hover {
+        background: rgba(10, 10, 10, 0.98) !important;
+    }
+
+    .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: 800;
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-decoration: none !important;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .navbar-brand::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+        transition: width 0.3s ease;
+    }
+
+    .navbar-brand:hover::after {
+        width: 100%;
+    }
+
+    /* Search Box Enhancement */
+    #user-search-form {
+        position: relative;
+        transform: scale(1);
+        transition: all 0.3s ease;
+    }
+
+    #user-search-form:focus-within {
+        transform: scale(1.02);
+    }
+
+    .input-group {
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
+        transition: all 0.3s ease;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+    }
+
+    .input-group:focus-within {
+        box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        border-color: var(--neon-blue);
+    }
+
+    .input-group-text {
+        background: transparent !important;
+        border: none;
+        color: var(--neon-blue);
+        transition: all 0.3s ease;
+    }
+
+    .form-control {
+        background: transparent !important;
+        border: none;
+        color: var(--white-text) !important;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+    .form-control::placeholder {
+        color: var(--muted-text) !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        box-shadow: none !important;
+        outline: none;
+        color: var(--white-text) !important;
+    }
+
+    .form-control:focus::placeholder {
+        transform: translateX(5px);
+        opacity: 0.7;
+    }
+
+    /* Search Results Enhancement */
+    #user-search-results {
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 15px;
+        margin-top: 8px;
+        animation: slideDown 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     #user-search-results a {
-        padding: 10px 15px;
-        color: #333;
-        transition: background-color 0.2s ease;
-    }
-    #user-search-results a:hover {
-        background-color: #f8f9fa;
-        text-decoration: none;
-    }
-    .dropdown-menu li.dropdown-item {
-        font-size: 14px;
-        padding: 8px 16px;
-        white-space: normal;
+        color: var(--light-text) !important;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        margin: 4px 8px;
+        display: block;
+        position: relative;
+        overflow: hidden;
     }
 
+    #user-search-results a::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    #user-search-results a:hover {
+        background: rgba(0, 212, 255, 0.1) !important;
+        transform: translateX(5px);
+        color: var(--white-text) !important;
+    }
+
+    #user-search-results a:hover::before {
+        left: 100%;
+    }
+
+    /* Navigation Links */
+    .nav-link {
+        color: var(--light-text) !important;
+        font-weight: 500;
+        padding: 8px 16px !important;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        margin: 0 2px;
+    }
+
+    .nav-link:hover {
+        color: var(--white-text) !important;
+        background: rgba(0, 212, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: var(--neon-blue);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .nav-link:hover::before {
+        width: 80%;
+    }
+
+    /* Notification Dropdown Enhancement */
+    .dropdown-menu {
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 15px !important;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6) !important;
+        padding: 0;
+        overflow: hidden;
+        animation: dropdownSlide 0.3s ease;
+    }
+
+    @keyframes dropdownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .dropdown-header {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        color: var(--white-text) !important;
+        font-weight: 600;
+        padding: 15px 20px;
+        margin: 0;
+        border: none;
+    }
+
+    .dropdown-item {
+        color: var(--light-text) !important;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-item:hover {
+        background: rgba(0, 212, 255, 0.1) !important;
+        color: var(--white-text) !important;
+        transform: translateX(5px);
+    }
+
+    .dropdown-divider {
+        border-color: rgba(255, 255, 255, 0.1);
+        margin: 0;
+    }
+
+    /* Badge Enhancement */
+    .badge {
+        background: linear-gradient(135deg, var(--neon-purple), #ff0066) !important;
+        color: white;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 10px;
+        animation: pulse 2s infinite;
+        box-shadow: 0 2px 10px rgba(255, 0, 102, 0.3);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* Button Enhancements */
+    .btn {
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        font-weight: 500;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transition: all 0.6s ease;
+        transform: translate(-50%, -50%);
+    }
+
+    .btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Alert Enhancements */
+    .alert {
+        background: var(--glass-bg) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 15px;
+        color: var(--white-text) !important;
+        animation: slideInDown 0.5s ease;
+    }
+
+    @keyframes slideInDown {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Footer Enhancement */
+    footer {
+        background: linear-gradient(135deg, var(--primary-black), var(--secondary-black)) !important;
+        color: var(--light-text);
+        text-align: center;
+        padding: 30px 0;
+        border-top: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+
+    footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+        animation: footerGlow 3s linear infinite;
+    }
+
+    @keyframes footerGlow {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    footer p {
+        margin: 0;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    /* Navbar Toggler Enhancement */
+    .navbar-toggler {
+        border: none;
+        padding: 4px 8px;
+        border-radius: 8px;
+        background: var(--glass-bg);
+        transition: all 0.3s ease;
+    }
+
+    .navbar-toggler:hover {
+        background: rgba(0, 212, 255, 0.1);
+        transform: scale(1.05);
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+    }
+
+    .navbar-toggler-icon {
+        filter: invert(1);
+    }
+
+    /* Container Enhancement */
+    .container {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: var(--primary-black);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+        
+        #user-search-form {
+            margin: 10px 0;
+        }
+        
+        .input-group {
+            border-radius: 20px;
+        }
+        
+        .nav-link {
+            margin: 2px 0;
+        }
+    }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Ask.hs</a>
         {% if user.is_authenticated %}
-        <form class="position-relative  w-50 mx-2" role="search" id="user-search-form" autocomplete="off">
+        <form class="position-relative w-50 mx-2" role="search" id="user-search-form" autocomplete="off">
             <div class="input-group">
-                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
                 <input 
                     type="search" 
                     class="form-control" 
@@ -81,63 +515,70 @@
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    🔔 <span class="badge bg-danger" id="notification-count">0</span>
-  </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i> <span class="badge bg-danger" id="notification-count">0</span>
+                    </a>
 
-  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notification-list" style="max-height: 300px; overflow-y: auto; width: 350px;">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notification-list" style="max-height: 300px; overflow-y: auto; width: 350px;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-inbox me-2"></i>Notifications</span>
+                            <button class="btn btn-sm btn-link p-0" onclick="markAllAsRead()" style="color: white;">Mark all as read</button>
+                        </li>
 
-    <li class="dropdown-header d-flex justify-content-between align-items-center">
-      <span>Notifications</span>
-      <button class="btn btn-sm btn-link p-0" onclick="markAllAsRead()">Mark all as read</button>
-    </li>
+                        <li><hr class="dropdown-divider"></li>
 
-    <li><hr class="dropdown-divider"></li>
+                        <div id="notification-items"></div>
 
-    <!-- Notifications will be injected here -->
-    <div id="notification-items">
-    </div>
+                        <li><hr class="dropdown-divider"></li>
 
-    <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-center" href="{% url 'all_notifications' %}">
+                                <i class="fas fa-eye me-2"></i>See all notifications
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-    <li>
-      <a class="dropdown-item text-center" href="{% url 'all_notifications' %}">See all notifications</a>
-    </li>
-  </ul>
-</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' user.username %}">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' user.username %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'unanswered_questions'%}">Questions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'unanswered_questions'%}">
+                        <i class="fas fa-question-circle me-2"></i>Questions
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
+                </li>
                 {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </li>
                 {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
-
-
 <!-- Messages -->
 <div class="container mt-5">
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         {% endfor %}
@@ -153,7 +594,7 @@
 <!-- Footer -->
 <footer>
     <div>
-        <p>&copy; 2025 Ask.hs Built with Django.</p>
+        <p>&copy; 2025 Ask.hs Built by Hosam Semry.</p>
     </div>
 </footer>
 
@@ -180,11 +621,13 @@ $(document).ready(function() {
                 resultsBox.empty();
 
                 if (users.length === 0) {
-                    resultsBox.append("<div class='p-2'>No users found</div>");
+                    resultsBox.append("<div class='p-3 text-center' style='color: #a0a0a0;'><i class='fas fa-user-slash me-2'></i>No users found</div>");
                 } else {
                     users.forEach(user => {
                         resultsBox.append(
-                            `<a href="/accounts/u/${user.username}/" class="list-group-item list-group-item-action border-0">${user.username}</a>`
+                            `<a href="/accounts/u/${user.username}/" class="list-group-item list-group-item-action border-0">
+                                <i class="fas fa-user me-2"></i>${user.username}
+                            </a>`
                         );
                     });
                 }
@@ -217,23 +660,22 @@ $(document).ready(function() {
         }
         return cookieValue;
     }
-window.markAllAsRead = function () {
-    fetch("{% url 'mark_all_notifications_as_read' %}")
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('notification-count').textContent = '0';
-          document.getElementById('notification-count').classList.add('d-none');
 
-          document.querySelectorAll('#notification-list .dropdown-item a').forEach(item => {
-            item.classList.remove('fw-bold');
-          });
-        }
-      });
-};
+    window.markAllAsRead = function () {
+        fetch("{% url 'mark_all_notifications_as_read' %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('notification-count').textContent = '0';
+                    document.getElementById('notification-count').classList.add('d-none');
 
+                    document.querySelectorAll('#notification-list .dropdown-item a').forEach(item => {
+                        item.classList.remove('fw-bold');
+                    });
+                }
+            });
+    };
 
-    // 🟩 Load notifications from server on page load
     fetch("/notifications/fetch/")
         .then(response => response.json())
         .then(data => {
@@ -247,16 +689,15 @@ window.markAllAsRead = function () {
                     const item = document.createElement("li");
                     item.classList.add("dropdown-item", "d-flex", "justify-content-between", "align-items-center");
 
-                    // 🟦 Make notification message clickable if URL is present
                     const text = document.createElement(notif.url ? "a" : "span");
-                    text.textContent = notif.message;
+                    text.innerHTML = `<i class="fas fa-bell me-2"></i>${notif.message}`;
                     if (notif.url) {
                         text.href = notif.url;
                         text.classList.add("text-decoration-none");
                     }
 
                     const markBtn = document.createElement("button");
-                    markBtn.innerHTML = "✔️";
+                    markBtn.innerHTML = '<i class="fas fa-check"></i>';
                     markBtn.classList.add("btn", "btn-sm", "btn-link", "text-success", "p-0", "ms-2");
                     markBtn.setAttribute("title", "Mark as read");
 
@@ -286,7 +727,6 @@ window.markAllAsRead = function () {
             }
         });
 
-    // 🟨 WebSocket - receive new notification
     const notificationSocket = new WebSocket(
         "ws://" + window.location.host + "/ws/notifications/" + userId + "/"
     );
@@ -302,11 +742,11 @@ window.markAllAsRead = function () {
         if (url) {
             const link = document.createElement("a");
             link.href = url;
-            link.textContent = message;
+            link.innerHTML = `<i class="fas fa-bell me-2"></i>${message}`;
             link.classList.add("text-decoration-none");
             newItem.appendChild(link);
         } else {
-            newItem.textContent = message;
+            newItem.innerHTML = `<i class="fas fa-bell me-2"></i>${message}`;
         }
 
         notificationList.appendChild(newItem);
