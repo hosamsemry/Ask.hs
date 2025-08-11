@@ -30,6 +30,7 @@ class RegisterView(FormView):
 
     def form_valid(self, form):
         form.save()
+        messages.success(self.request, "Registration successful! You can now log in.")
         return super().form_valid(form)
 
 
@@ -68,7 +69,7 @@ class UserProfileView(DetailView):
 
             if profile is None:
                 profile = get_object_or_404(
-                    UserProfile.objects.select_related('user'),
+                    UserProfile.objects.filter(is_deleted=False, user__is_active=True).select_related('user'),
                     user__username=self.kwargs['username']
                 )
                 cache.set(cache_key, profile, timeout=120)
@@ -171,7 +172,7 @@ class FollowersListView(ListView):
             return queryset
 
         user = get_object_or_404(User, username=username)
-        queryset = user.userprofile.followers.all()
+        queryset = user.userprofile.filter(is_deleted=False).followers.all()
         cache.set(cache_key, queryset, timeout=120)
         return queryset
 
@@ -196,7 +197,7 @@ class FollowingListView(ListView):
             return queryset
 
         user = get_object_or_404(User, username=username)
-        queryset = user.userprofile.following.all()
+        queryset = user.userprofile.filter(is_deleted=False).following.all()
         cache.set(cache_key, queryset, timeout=120)
         return queryset
 
@@ -210,7 +211,7 @@ class FollowingListView(ListView):
 def remove_follower(request, username):
     if request.method == 'POST':
         follower_user = get_object_or_404(User, username=username)
-        follower_profile = follower_user.userprofile
+        follower_profile = follower_user.userprofile.filter(is_deleted=False)
         current_user_profile = request.user.userprofile
 
         if current_user_profile in follower_profile.following.all():
@@ -227,7 +228,7 @@ class ProfileVisitorsView(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.profile_user = get_object_or_404(
-            User.objects.select_related('userprofile'),
+            User.objects.filter(is_active=True).select_related('userprofile'),
             username=self.kwargs['username']
         )
 
@@ -271,3 +272,16 @@ class SubscribeView(TemplateView):
         profile.save()
         messages.success(request, "You’ve successfully upgraded to premium! It may take 2 minutes to take effect.")
         return redirect('profile', username=request.user.username)
+    
+@login_required
+def deleted_account(request):
+    if request.method == 'POST':
+        profile = request.user.userprofile
+        user = request.user
+        user.is_active = False
+        profile.is_deleted = True
+        profile.save()
+        logout(request)
+        messages.success(request, "Your account has been deleted successfully.")
+        return redirect('register')
+    return redirect('profile', username=request.user.username)
