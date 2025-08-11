@@ -28,7 +28,7 @@ class Home(LoginRequiredMixin, ListView):
             return queryset
 
         user_profile = (
-            UserProfile.objects
+            UserProfile.objects.filter(is_deleted=False)
             .prefetch_related('following__user')
             .get(user=self.request.user)
         )
@@ -54,8 +54,8 @@ def search_users(request):
     if not query:
         return JsonResponse({'users': []})
 
-    starts_with = User.objects.filter(username__istartswith=query)
-    contains = User.objects.filter(username__icontains=query).exclude(id__in=starts_with.values_list('id', flat=True))
+    starts_with = User.objects.filter(is_active=True,username__istartswith=query)
+    contains = User.objects.filter(is_active=True,username__icontains=query).exclude(id__in=starts_with.values_list('id', flat=True))
 
     results = list(starts_with.values('username')) + list(contains.values('username'))
     return JsonResponse({'users': results})

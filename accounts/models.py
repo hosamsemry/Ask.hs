@@ -21,6 +21,7 @@ class UserProfile(models.Model):
     following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
     visit_count = models.PositiveIntegerField(default=0)
     is_premium = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.email
