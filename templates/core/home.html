@@ -1,57 +1,79 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container py-5">
+<style>
+    .answer-card-link {
+    color: inherit;
+    display: block;
+}
+.answer-card-link:hover .answer-card {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+</style>
+<div class="container py-2">
     <h2 class="mb-5 text-center fw-bold display-5">✨ Explore New Answers</h2>
 
     {% for answer in answers %}
-        <div class="card border-0 shadow-sm mb-4 rounded-4">
-            <div class="card-header bg-transparent d-flex align-items-center justify-content-between border-0">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="https://ui-avatars.com/api/?name={{ answer.responder.username }}&background=random&size=32" alt="avatar" class="rounded-circle" width="50" height="50">
+    <div class="answer-card shadow-sm rounded-4 mb-4 p-3" 
+         style="background: rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 25px;
+                margin: 20px 0;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s ease;
+                position: relative;">
+                
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://ui-avatars.com/api/?name={{ answer.responder.username }}&background=random&size=64" 
+                    alt="{{ answer.responder.username }}" 
+                    class="rounded-circle me-3" width="50" height="50">
                     <div>
-                        <div class="fw-semibold">
-                            <a href="{% url 'profile' answer.responder.username %}" class="text-decoration-none">
-                                {{ answer.responder.username }}
-                            </a>
-                            <span class="text-muted small">answered</span>
-                            {% if answer.question.sender %}
-                                <a href="{% url 'profile' answer.question.sender.username %}" class="text-decoration-none small">
-                                    {{ answer.question.sender.username }} 
-                                </a> <span class="text-muted small"> Question</span>
-                            {% else %}
-                                <span class="text-muted small">Anonymous Question</span>
-                            {% endif %}
-                        </div>
-                        <small class="text-muted">{{ answer.created_at|date:"M d, Y · H:i" }}</small>
-                    </div>
+                <div class="fw-semibold">
+                    <span class="answer-author">{{ answer.responder.username }}</span>
+                    <span class="text-white small">answered</span>
+                    {% if answer.question.sender %}
+                        <span class="question-author">{{ answer.question.sender.username }}</span>
+                        <span class="text-white small">Question</span>
+                    {% else %}
+                        <span class="text-white small">Anonymous Question</span>
+                    {% endif %}
                 </div>
-            </div>
+                    <a href="{% url 'answer_detail' answer.pk %}" class="text-decoration-none answer-card-link">
 
-            <div class="card-body pt-0">
-                <p class="mb-2 text-dark"><strong class="text-primary">Question:</strong> {{ answer.question.content }}</p>
-                <div class="bg-light rounded p-3">
-                    <p class="mb-0"><strong class="text-success">Answer:</strong> {{ answer.content }}</p>
-                </div>
+                <small class="text-white">{{ answer.created_at|date:"M d, Y · H:i" }}</small>
             </div>
+        </div>
 
-            {% if user.is_authenticated %}
-                <div class="card-footer bg-white border-0 d-flex align-items-center gap-3">
-                    <form class="like-form" data-answer-id="{{ answer.id }}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger like-button d-flex align-items-center gap-2" data-bs-toggle="tooltip" data-bs-title="Like this answer">
-                            <i class="fa-solid fa-heart"></i>
-                            <span class="like-count">{{ answer.likes_count }}</span>
-                        </button>
-                    </form>
-                </div>
-            {% endif %}
+        <div class="question-box p-3 rounded mb-2">
+            <strong class="text-primary">Question:</strong>
+            <p class="mb-0">{{ answer.question.content }}</p>
         </div>
-    {% empty %}
-        <div class="alert alert-info text-center mt-5 p-4 rounded-4 shadow-sm">
-            <h5 class="mb-2">Your feed is empty!😔</h5>
-            <p class="mb-0">Start following users to see their answers here.</p>
+
+        <div class="answer-box p-3 rounded mb-2">
+            <strong class="text-success">Answer:</strong>
+            <p class="mb-0">{{ answer.content }}</p>
         </div>
-    {% endfor %}
+    </a>
+    {% if user.is_authenticated %}
+        <form class="like-form mt-2" data-answer-id="{{ answer.id }}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-like text-danger">
+                <i class="fa-solid fa-heart"></i>
+                <span class="like-count">{{ answer.likes_count }}</span>
+            </button>
+        </form>
+    {% endif %}
+
+    </div>
+
+
+{% empty %}
+    <div class="empty-feed text-center p-4 rounded-4 shadow-sm">
+        <h5 class="mb-2">Your feed is empty! 😔</h5>
+        <p class="mb-0">Start following users to see their answers here.</p>
+    </div>
+{% endfor %}
+
 
     {% if is_paginated %}
     <nav class="d-flex justify-content-center mt-5" aria-label="Feed pagination">
