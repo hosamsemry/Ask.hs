@@ -57,9 +57,16 @@ class LoginForm(forms.Form):
         return cleaned_data
     
 class UserProfileForm(forms.ModelForm):
+    username = forms.CharField(
+        max_length=150,
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Username"
+    )
+
     class Meta:
         model = UserProfile
-        fields = ['bio', 'picture', 'location', 'birth_date']
+        fields = ['username', 'bio', 'picture', 'location', 'birth_date']
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
@@ -67,5 +74,25 @@ class UserProfileForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['picture'].widget.attrs.update({'class': 'form-control'})
+
+        if self.instance and self.instance.user:
+            self.fields['username'].initial = self.instance.user.username
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if UserAccount.objects.filter(username=username).exclude(pk=self.instance.user.pk).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        username = self.cleaned_data.get('username')
+        if username and profile.user.username != username:
+            profile.user.username = username
+            profile.user.save()
+        if commit:
+            profile.save()
+        return profile

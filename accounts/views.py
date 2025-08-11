@@ -134,11 +134,17 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
     form_class = UserProfileForm
     template_name = 'accounts/edit_profile.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_object(self):
         return self.request.user.userprofile
 
     def get_success_url(self):
         return reverse_lazy('profile', kwargs={'username': self.request.user.username})
+
     
 
 @login_required
