@@ -469,6 +469,13 @@
                 </a>
             {% elif request.user == profile.user %}
                 <a href="{% url 'edit_profile' %}" class="modern-btn btn-edit">Edit Profile</a>
+                <form method="post" action="{% url 'delete_account' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="modern-btn btn btn-danger">
+                        Delete Profile
+                    </button>
+                </form>
+
             {% endif %}
         </div>
 
@@ -596,6 +603,27 @@
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "This question will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#8e959cff',
+                    confirmButtonText: 'Yes, delete it!',
+                    scrollbarPadding: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+        document.querySelectorAll('.btn-danger').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const form = this.closest('form');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This profile will be permanently deleted.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
