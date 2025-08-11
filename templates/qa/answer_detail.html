@@ -1,44 +1,60 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<style>
+  .badge:hover {
+    background-color: #0d6efd !important;
+    opacity: 0.85;
+  }
+</style>
 <div class="container mt-5">
+
   <!-- Question Card -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h3 class="card-title text-primary mb-3">
-        <i class="bi bi-question-circle-fill me-2"></i>Question
+  <div class="card shadow-lg border-0 mb-4 rounded-4" style="background-color: rgba(255, 255, 255, 0.05);">
+    <div class="card-body p-4">
+      <h3 class="card-title text-light fw-bold mb-3">
+        <i class="bi bi-question-circle-fill me-2 text-info"></i>Question
       </h3>
-      <p class="card-text fs-5">{{ question.content }}</p>
+      <p class="card-text text-light fs-5 lh-lg">{{ question.content }}</p>
     </div>
   </div>
 
   <!-- Answer Card -->
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body bg-light">
-      <h4 class="card-title text-success mb-3">
-        <i class="bi bi-pencil-fill me-2"></i>Your Answer
+  <div class="card shadow-lg border-0 mb-4 rounded-4" style="background-color: rgba(255, 255, 255, 0.05);">
+    <div class="card-body p-4">
+      <h4 class="card-title text-light fw-bold mb-3">
+        <i class="bi bi-pencil-fill me-2 text-success"></i>Your Answer
       </h4>
-      <p class="card-text fs-5">{{ answer.content }}</p>
+      {% if answer %}
+        <p class="card-text text-light fs-5 lh-lg">{{ answer.content }}</p>
+      {% else %}
+        <p class="text-muted fst-italic">You haven’t answered this question yet.</p>
+      {% endif %}
     </div>
   </div>
 
   <!-- Liked By Section -->
-  <div class="card shadow-sm border-0">
-    <div class="card-body">
-      <h5 class="card-title text-secondary mb-3">
-        <i class="bi bi-hand-thumbs-up-fill me-2"></i>Liked by
+  <div class="card shadow-lg border-0 rounded-4" style="background-color: rgba(255, 255, 255, 0.05);">
+    <div class="card-body p-4">
+      <h5 class="card-title text-secondary fw-semibold mb-3">
+        <i class="bi bi-hand-thumbs-up-fill me-2 text-warning"></i>Liked by
       </h5>
       {% if likers %}
         <div class="d-flex flex-wrap gap-2">
           {% for user in likers %}
-            {% comment %} <span class="badge rounded-pill bg-primary">{{ user.username }}</span> {% endcomment %}
-            <a class="badge rounded-pill bg-primary text-decoration-none" href="{% url 'profile' user.username %}">{{ user.username }}</a>
+            <a href="{% url 'profile' user.username %}" 
+               class="badge rounded-pill bg-primary text-decoration-none px-3 py-2 shadow-sm"
+               style="transition: 0.2s ease;">
+              {{ user.username }}
+            </a>
           {% endfor %}
         </div>
       {% else %}
-        <p class="text-muted fst-italic">No likes yet.</p>
+        <p class="text-light fst-italic">No likes yet.</p>
       {% endif %}
     </div>
   </div>
+
 </div>
 {% endblock %}

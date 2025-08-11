@@ -2,156 +2,584 @@
 {% block title %}{{ profile.user.username }}'s Profile{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card mx-auto shadow-lg border-0 text-center" style="max-width: 800px;">
-        <div class="card-body">
+<style>
+    body {
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .modern-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .profile-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-image:hover {
+        transform: scale(1.05);
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .default-avatar {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 48px;
+        width: 100%;
+        height: 100%;
+    }
+
+    .username {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 20px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .stats-container {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+    }
+
+    .stat-link {
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s ease;
+        padding: 15px 20px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-link:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+
+    .modern-btn {
+        padding: 12px 24px;
+        border-radius: 50px;
+        border: none;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.95rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    .btn-follow {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .btn-unfollow {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-ask {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #333;
+        box-shadow: 0 5px 15px rgba(252, 182, 159, 0.4);
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #333;
+        box-shadow: 0 5px 15px rgba(168, 237, 234, 0.4);
+    }
+
+    .btn-unanswered {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .premium-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+    }
+
+    .premium-link {
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .premium-link:hover {
+        color: #ffd700;
+        text-decoration: none;
+    }
+
+    .info-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        padding: 20px;
+        margin: 15px 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .info-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+        margin: 0;
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .icon-bio { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .icon-location { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+    .icon-date { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+
+    .answers-section {
+        margin-top: 40px;
+        padding: 20px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .question-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 25px;
+        margin: 20px 0;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+    }
+
+    .question-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .question-content-wrapper {
+        flex: 1;
+    }
+
+    .question-author {
+        font-weight: 600;
+        color: #4facfe;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .question-author:hover {
+        color: #00f2fe;
+        text-decoration: none;
+    }
+
+    .anonymous {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .question-text {
+        color: white;
+        font-size: 1.1rem;
+        margin: 10px 0;
+        line-height: 1.6;
+    }
+
+    .answer-box {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 15px;
+        border-left: 4px solid #4facfe;
+    }
+
+    .answer-label {
+        color: #4facfe;
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .answer-content {
+        color: white;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .answer-date {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .like-form {
+        margin-top: 15px;
+    }
+
+    .like-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .like-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .delete-form {
+        margin-left: 15px;
+    }
+
+    .delete-question-btn {
+        background: rgba(255, 107, 107, 0.2);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .delete-question-btn:hover {
+        background: rgba(255, 107, 107, 0.3);
+        transform: scale(1.05);
+        color: #ff6b6b;
+    }
+
+    .answer-btn {
+        background: rgba(79, 172, 254, 0.2);
+        border: 1px solid rgba(79, 172, 254, 0.3);
+        color: #4facfe;
+        padding: 8px 16px;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+    }
+
+    .answer-btn:hover {
+        background: rgba(79, 172, 254, 0.3);
+        color: #4facfe;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+    .no-answers {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .modern-container {
+            padding: 10px;
+        }
+        
+        .profile-card {
+            padding: 25px;
+        }
+        
+        .stats-container {
+            gap: 20px;
+        }
+        
+        .username {
+            font-size: 1.8rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .modern-btn {
+            width: 200px;
+            justify-content: center;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .question-card {
+            flex-direction: column;
+        }
+
+        .delete-form {
+            margin-left: 0;
+            margin-top: 15px;
+            align-self: flex-start;
+        }
+    }
+</style>
+
+<div class="modern-container">
+    <div class="profile-card">
+        <div class="profile-image">
             {% if profile.picture %}
-                <img src="{{ profile.picture.url }}" class="rounded-circle shadow mb-3" style="width: 150px; height: 150px; object-fit: cover;" alt="Profile Picture">
+                <img src="{{ profile.picture.url }}" alt="Profile Picture">
             {% else %}
-                <i class="fas fa-user-circle fa-7x text-muted mb-3"></i>
-            {% endif %}
-
-            <h2 class="fw-bold">{{ profile.user.username }}</h2>
-
-            <div class="d-flex justify-content-center align-items-center gap-4 flex-wrap mt-3">
-                <a href="{% url 'followers_list' profile.user.username %}" class="text-decoration-none">
-                    <div class="text-center">
-                        <div class="fs-4 fw-bold text-dark">{{ profile.followers.count }}</div>
-                        <small class="text-muted">Followers</small>
-                    </div>
-                </a>
-                <a href="{% url 'following_list' profile.user.username %}" class="text-decoration-none">
-                    <div class="text-center">
-                        <div class="fs-4 fw-bold text-dark">{{ profile.following.count }}</div>
-                        <small class="text-muted">Following</small>
-                    </div>
-                </a>
-            </div>
-
-            <div class="mt-3">
-                {% if request.user.is_authenticated and request.user != profile.user %}
-                    {% if profile in request.user.userprofile.following.all %}
-                        <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-outline-danger rounded-pill px-4 shadow-sm me-2">
-                            <i class="fas fa-user-minus me-1"></i> Unfollow
-                        </a>
-                    {% else %}
-                        <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm me-2">
-                            <i class="fas fa-user-plus me-1"></i> Follow
-                        </a>
-                    {% endif %}
-                    <a href="{% url 'ask_question' profile.user.username %}" class="btn btn-warning rounded-pill px-4">
-                        Ask <i class="fas fa-question-circle ms-1"></i>
-                    </a>
-                {% elif request.user == profile.user %}
-                    <a href="{% url 'edit_profile' %}" class="btn btn-success rounded-pill px-4">Edit Profile</a>
-                {% endif %}
-            </div>
-
-            {% if request.user == profile.user %}
-                <div class="mt-3">
-                    {% if profile.is_premium %}
-                        <a href="{% url 'profile-visitors' profile.user.username %}" class="text-decoration-none">
-                            👀 Total Visits: <strong>{{ profile.visit_count }}</strong>
-                        </a>
-                    {% else %}
-                        <a href="{% url 'subscribe' %}" class="text-decoration-none">
-                            Upgrade to premium to see profile visitors 🔒
-                        </a>
-                    {% endif %}
+                <div class="default-avatar">
+                    <i class="fas fa-user-circle"></i>
                 </div>
             {% endif %}
         </div>
+
+        <h2 class="username">{{ profile.user.username }}</h2>
+
+        <div class="stats-container">
+            <a href="{% url 'followers_list' profile.user.username %}" class="stat-link">
+                <div class="stat-number">{{ profile.followers.count }}</div>
+                <div class="stat-label">Followers</div>
+            </a>
+            <a href="{% url 'following_list' profile.user.username %}" class="stat-link">
+                <div class="stat-number">{{ profile.following.count }}</div>
+                <div class="stat-label">Following</div>
+            </a>
+        </div>
+
+        <div class="action-buttons">
+            {% if request.user.is_authenticated and request.user != profile.user %}
+                {% if profile in request.user.userprofile.following.all %}
+                    <a href="{% url 'toggle_follow' profile.user.username %}" class="modern-btn btn-unfollow">
+                        <i class="fas fa-user-minus"></i> Unfollow
+                    </a>
+                {% else %}
+                    <a href="{% url 'toggle_follow' profile.user.username %}" class="modern-btn btn-follow">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </a>
+                {% endif %}
+                <a href="{% url 'ask_question' profile.user.username %}" class="modern-btn btn-ask">
+                    Ask <i class="fas fa-question-circle"></i>
+                </a>
+            {% elif request.user == profile.user %}
+                <a href="{% url 'edit_profile' %}" class="modern-btn btn-edit">Edit Profile</a>
+            {% endif %}
+        </div>
+
+        {% if request.user == profile.user %}
+            <div class="premium-info">
+                {% if profile.is_premium %}
+                    <a href="{% url 'profile-visitors' profile.user.username %}" class="premium-link">
+                        👀 Total Visits: <strong>{{ profile.visit_count }}</strong>
+                    </a>
+                {% else %}
+                    <a href="{% url 'subscribe' %}" class="premium-link">
+                        Upgrade to premium to see profile visitors 🔒
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 
     {% if profile.bio %}
-        <div class="card mt-4 shadow-sm border-0">
-            <div class="card-body d-flex align-items-start">
-                <i class="fa-solid fa-user text-primary fs-5 me-3 mt-1"></i>
-                <p class="mb-0 text-muted">{{ profile.bio }}</p>
+        <div class="info-card">
+            <div class="info-content">
+                <div class="info-icon icon-bio">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <p class="mb-0">Bio: {{ profile.bio }}</p>
             </div>
         </div>
     {% endif %}
 
     {% if profile.location %}
-        <div class="card mt-3 shadow-sm border-0">
-            <div class="card-body d-flex align-items-center">
-                <i class="fas fa-map-marker-alt text-danger fs-5 me-3"></i>
-                <p class="mb-0 text-muted">{{ profile.location }}</p>
+        <div class="info-card">
+            <div class="info-content">
+                <div class="info-icon icon-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <p class="mb-0">Location: {{ profile.location }}</p>
             </div>
         </div>
     {% endif %}
 
     {% if profile.birth_date %}
-        <div class="card mt-3 shadow-sm border-0">
-            <div class="card-body d-flex align-items-center">
-                <i class="fa fa-calendar text-info fs-5 me-3"></i>
-                <p class="mb-0 text-muted">{{ profile.birth_date }}</p>
+        <div class="info-card">
+            <div class="info-content">
+                <div class="info-icon icon-date">
+                    <i class="fa fa-calendar"></i>
+                </div>
+                <p class="mb-0">Date of birth: {{ profile.birth_date }}</p>
             </div>
         </div>
     {% endif %}
 
-    <div class="mt-5 p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold">Answers</h4>
+    <div class="answers-section">
+        <div class="section-header">
+            <h4 class="section-title">Answers</h4>
             {% if request.user == profile.user %}
-                <a class="btn btn-outline-warning btn-sm" href="{% url 'unanswered_questions' %}">
-                    <i class="fas fa-question-circle me-1"></i> Unanswered Questions
+                <a class="modern-btn btn-unanswered" href="{% url 'unanswered_questions' %}">
+                    <i class="fas fa-question-circle"></i> Unanswered Questions
                 </a>
             {% endif %}
         </div>
 
         {% for q in questions %}
             {% if q.is_answered %}
-                <div class="card my-3 shadow-sm border-0 d-flex flex-row px-3">
-                    
-                    <div class="card-body">
+                <div class="question-card">
+                    <div class="question-content-wrapper">
                         <p class="mb-2">
                             <strong>
                                 {% if not q.is_anonymous %}
-                                    <a href="{% url 'profile' q.sender.username %}" class="text-decoration-none text-primary">{{ q.sender.username }}</a>
+                                    <a href="{% url 'profile' q.sender.username %}" class="question-author">{{ q.sender.username }}</a>
                                 {% else %}
-                                    <span class="text-muted">Anonymous</span>
+                                    <span class="anonymous">Anonymous</span>
                                 {% endif %}
                             </strong>
                             asked:
                         </p>
-                        <p class="text-dark">{{ q.content }}</p>
+                        <a href="{% url 'answer_detail' q.answer.pk %}" class="text-decoration-none answer-card-link">
+                        <p class="question-text">{{ q.content }}</p>
 
                         {% if q.answer %}
-                            <div class="alert alert-light mt-3 mb-0 d-flex flex-column">
-                                <strong class="text-success mb-1">Answer:</strong>
-                                <span>{{ q.answer.content }}</span>
-                                <small class="text-muted mt-1">{{ q.created_at }}</small>
-                            </div>
+                            <div class="answer-box">
+                                <strong class="answer-label">Answer:</strong>
+                                <div class="answer-content">{{ q.answer.content }}</div>
+                                <div class="answer-date">{{ q.created_at }}</div>
 
-                            {% if user.is_authenticated %}
-                                <div class="mt-2">
+                                {% if user.is_authenticated %}
                                     <form class="like-form" data-answer-id="{{ q.answer.id }}" method="post">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger btn-sm like-button d-flex align-items-center gap-1" data-bs-toggle="tooltip" title="Like this answer">
+                                        <button type="submit" class="like-button" data-bs-toggle="tooltip" title="Like this answer">
                                             <i class="fa-solid fa-heart"></i>
                                             <span class="like-count">{{ q.answer.likes_count }}</span>
                                         </button>
                                     </form>
-                                </div>
-                            {% endif %}
-
-                            
+                                {% endif %}
+                            </div>
                         {% elif request.user == profile.user %}
-                            <a href="{% url 'answer_question' q.id %}" class="btn btn-sm btn-outline-primary mt-2">Answer</a>
+                            <a href="{% url 'answer_question' q.id %}" class="answer-btn">Answer</a>
                         {% endif %}
                     </div>
+                    </a>
                     {% if q.receiver == user %}
-                            <form method="POST" action="{% url 'delete_question' q.id %}" class="mt-2">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger  delete-question-btn">Delete</button>
-                            </form>
-                        {% endif %}
+                        <form method="POST" action="{% url 'delete_question' q.id %}" class="delete-form">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-question-btn">Delete</button>
+                        </form>
+                    {% endif %}
                 </div>
             {% endif %}
         {% empty %}
-            <div class="alert alert-info mt-3" role="alert">
-                No answers, yet.
+            <div class="no-answers">
+                <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                <div>No answers, yet.</div>
             </div>
         {% endfor %}
     </div>
@@ -160,62 +588,71 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.delete-question-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            event.preventDefault();
-            const form = this.closest('form');
+        document.querySelectorAll('.delete-question-btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const form = this.closest('form');
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This question will be permanently deleted.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#8e959cff',
-                confirmButtonText: 'Yes, delete it!',
-                scrollbarPadding: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This question will be permanently deleted.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#8e959cff',
+                    confirmButtonText: 'Yes, delete it!',
+                    scrollbarPadding: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        if (typeof bootstrap !== 'undefined') {
+            tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
+        }
+
+        document.querySelectorAll(".like-form").forEach(form => {
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const answerId = this.dataset.answerId;
+                const url = `/qa/like/${answerId}/`;
+                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+                const button = this.querySelector(".like-button");
+                const icon = button.querySelector("i");
+                const countSpan = button.querySelector(".like-count");
+
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Accept': 'application/json',
+                        },
+                    });
+
+                    if (!response.ok) throw new Error("Network error");
+
+                    const data = await response.json();
+                    countSpan.textContent = data.likes_count;
+
+                    // Add animation
+                    button.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                    }, 150);
+
+                } catch (error) {
+                    console.error("Like error:", error);
                 }
             });
         });
     });
-});
-document.addEventListener("DOMContentLoaded", function () {
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(el => new bootstrap.Tooltip(el));
-
-    document.querySelectorAll(".like-form").forEach(form => {
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
-
-            const answerId = this.dataset.answerId;
-            const url = `/qa/like/${answerId}/`;
-            const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
-            const button = this.querySelector(".like-button");
-            const icon = button.querySelector("i");
-            const countSpan = button.querySelector(".like-count");
-
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                });
-
-                if (!response.ok) throw new Error("Network error");
-
-                const data = await response.json();
-                countSpan.textContent = data.likes_count;
-
-            } catch (error) {
-                console.error("Like error:", error);
-            }
-        });
-    });
-});
 </script>
 {% endblock %}

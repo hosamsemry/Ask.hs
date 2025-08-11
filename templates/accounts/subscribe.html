@@ -3,13 +3,13 @@
 {% block content %}
 <div class="container my-4">
     <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-secondary mb-3">
-        ← Back to Profile
+        Back to Profile
     </a>
 
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0" style="background-color: rgba(255, 255, 255, 0.05);">
         <div class="card-body text-center">
-            <h2 class="card-title mb-3">Upgrade to Premium</h2>
-            <p class="card-text text-muted mb-4">
+            <h2 class="card-title mb-3 text-primary">Upgrade to Premium</h2>
+            <p class="card-text text-white mb-4">
                 Unlock exclusive features, including the ability to see who has visited your profile.
             </p>
 

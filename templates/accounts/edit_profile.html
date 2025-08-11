@@ -3,9 +3,31 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-<div class="container mt-4" style="max-width: 600px;">
+<style>
+
+    .container .edit input,
+    .container .edit textarea,
+    .container .edit select {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #000;
+        border: 1px solid #bbbbbb94;
+        border-radius: 6px;
+        padding: 8px 10px;
+        width: 100%;
+    }
+
+    .container form input:focus,
+    .container form textarea:focus,
+    .container form select:focus {
+        outline: none;
+        border-color: #66afe9;
+        box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
+    }
+</style>
+
+<div class="container mb-5 p-3" style="max-width: 600px;background-color: rgba(255, 255, 255, 0.05); border:1px solid #bbbbbba9">
     <h2 class="mb-4">Edit Your Profile</h2>
-    <form method="post" enctype="multipart/form-data">
+    <form class='edit' method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Save Changes</button>
