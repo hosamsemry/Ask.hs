@@ -269,5 +269,5 @@ class SubscribeView(TemplateView):
         profile = request.user.userprofile
         profile.is_premium = True
         profile.save()
-        messages.success(request, "You’ve successfully upgraded to premium!")
+        messages.success(request, "You’ve successfully upgraded to premium! It may take 2 minutes to take effect.")
         return redirect('profile', username=request.user.username)
