@@ -4,7 +4,7 @@ import time
 
 class RateLimitMiddleware:
 
-    RATE_LIMIT = 15
+    RATE_LIMIT = 100
     TIME_WINDOW = 60
 
     def __init__(self, get_response):
