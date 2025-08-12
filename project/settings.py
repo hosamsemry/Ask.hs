@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'ratelimit', 
     'accounts',
     'questions',
     'core',
@@ -74,7 +73,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = os.getenv('ALLOWED_HOSTS', '').split(',')
+CORS_ALLOWED_ORIGINS = [
+    "https://ask-hs.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:3000",
+]
+
 
 CACHES = {
     'default': {
