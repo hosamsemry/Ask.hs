@@ -41,15 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'corsheaders',
     'accounts',
     'questions',
     'core',
     'user_notifications',
     'channels',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 ASGI_APPLICATION = 'project.asgi.application'
 
@@ -114,10 +114,7 @@ TEMPLATES = [
     },
 ]
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-if DEBUG:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
     # MEDIA_URL = 'https://res.cloudinary.com/{}/'.format(os.getenv('CLOUD_NAME'))
 
@@ -196,6 +193,12 @@ STATICFILES_DIRS = [
 
 # Whitenoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files configuration - Use Cloudinary for media storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+if DEBUG:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Security settings for production
 if not DEBUG:
