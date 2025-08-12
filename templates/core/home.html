@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const answerId = this.dataset.answerId;
             const url = `/qa/like/${answerId}/`;
             const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
-            const button = this.querySelector(".like-button");
+            const button = this.querySelector(".btn-like");
             const icon = button.querySelector("i");
             const countSpan = button.querySelector(".like-count");
 
