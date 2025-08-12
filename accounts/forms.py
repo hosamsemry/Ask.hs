@@ -66,7 +66,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['username', 'bio', 'picture', 'location', 'birth_date']
+        fields = ['username', 'bio', 'location', 'birth_date']
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
