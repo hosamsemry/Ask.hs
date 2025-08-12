@@ -178,7 +178,7 @@ class FollowersListView(ListView):
             return queryset
 
         user = get_object_or_404(User, username=username)
-        queryset = user.userprofile.filter(is_deleted=False).followers.all()
+        queryset = user.userprofile.followers.filter(is_deleted=False)
         cache.set(cache_key, queryset, timeout=120)
         return queryset
 
@@ -203,7 +203,7 @@ class FollowingListView(ListView):
             return queryset
 
         user = get_object_or_404(User, username=username)
-        queryset = user.userprofile.filter(is_deleted=False).following.all()
+        queryset = user.userprofile.following.filter(is_deleted=False)
         cache.set(cache_key, queryset, timeout=120)
         return queryset
 
