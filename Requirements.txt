@@ -8,13 +8,19 @@ channels_redis==4.3.0
 constantly==23.10.4
 cryptography==45.0.6
 daphne==4.2.1
+dj-database-url==2.1.0
 Django==5.2.4
+django-cors-headers==4.7.0
 django-debug-toolbar==6.0.0
+django-ratelimit==4.1.0
+django-sslserver==0.22
 dotenv==0.9.9
+gunicorn==21.2.0
 hyperlink==21.0.0
 idna==3.10
 incremental==24.7.2
 msgpack==1.1.1
+packaging==25.0
 pillow==11.3.0
 psycopg2==2.9.10
 pyasn1==0.6.1
@@ -29,6 +35,5 @@ sqlparse==0.5.3
 Twisted==25.5.0
 txaio==25.6.1
 typing_extensions==4.14.1
-dj-database-url==2.1.0
 whitenoise==6.6.0
-gunicorn==21.2.0
+zope.interface==7.2
