@@ -100,6 +100,19 @@ def toggle_like(request, answer_id):
         else:
             answer.likes.add(request.user)
             send_like_notification(user=answer.responder, liker=request.user, answer=answer)
+        
+        cache_keys = [
+            f'answer_likes_{answer_id}',
+            f'answer_detail_{answer_id}',
+            f'user_liked_answers_{request.user.id}',
+            f'user_answers_{answer.responder.id}',
+            f'question_answers_{answer.question.id}',
+            f'popular_answers',
+            f'recent_activity_{answer.responder.id}',
+        ]
+        cache.delete_many(cache_keys)
+        cache.clear()
+        
         return JsonResponse({'likes_count': answer.likes.count()})
     return JsonResponse({'error': 'Invalid method'}, status=400)
 

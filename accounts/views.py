@@ -142,6 +142,21 @@ class EditProfileView(LoginRequiredMixin, UpdateView):
     def get_object(self):
         return self.request.user.userprofile
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        cache_keys = [
+            f'user_profile_{self.request.user.id}',
+            f'user_profile_{self.request.user.username}',
+            f'profile_data_{self.request.user.id}',
+            f'user_answers_{self.request.user.id}',
+            f'user_questions_{self.request.user.id}',
+        ]
+        cache.delete_many(cache_keys)
+        
+        cache.clear()  
+        messages.success(self.request, "Profile updated successfully!")
+        return response
+
     def get_success_url(self):
         return reverse_lazy('profile', kwargs={'username': self.request.user.username})
 
