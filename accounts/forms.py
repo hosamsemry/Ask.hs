@@ -66,7 +66,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['username', 'bio', 'location', 'birth_date']
+        fields = ['username', 'picture', 'bio', 'location', 'birth_date']
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
@@ -76,6 +76,7 @@ class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self.fields['picture'].widget.attrs.update({'class': 'form-control'})
 
         if self.instance and self.instance.user:
             self.fields['username'].initial = self.instance.user.username
