@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from core.views import Home
-from debug_view import debug_s3_view
+from project.debug_view import debug_s3_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
