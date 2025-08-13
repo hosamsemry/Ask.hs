@@ -5,13 +5,13 @@ A Q&A-style web platform where users can post questions, answer others, and inte
 ---
 
 ## 🛠️ Tech Stack
-- Backend: Django
-
-- Database: PostgreSQL
-
-- Frontend: Django Templates, HTML, CSS, JavaScript
-
-- Other Tools: Bootstrap, Django Channels 
+- **Backend**: Django 5.2.4
+- **Database**: PostgreSQL (production), SQLite (development)
+- **Frontend**: Django Templates, HTML, CSS, JavaScript
+- **Real-time**: Django Channels with Redis
+- **Media Storage**: AWS S3
+- **Deployment**: Render.com
+- **Other Tools**: Bootstrap, WhiteNoise, Daphne (ASGI server) 
 
 ---
 
@@ -22,9 +22,9 @@ A Q&A-style web platform where users can post questions, answer others, and inte
 
 - Ask & Answer Questions – Post questions, answer others, and engage in discussions.
 
-- Question Categories – Organize questions by tags or topics.
+- Like/Unlike answers.
 
-- Upvotes/Downvotes – Show appreciation or disagreement with answers.
+- Follow/Unfollow users 
 
 ### Notifications
   #### Real-Time Notifications for:
@@ -49,18 +49,106 @@ View All Notifications – Access a history of both read and unread notification
 
 ---
 
-## Installation
+## 🌐 Live Demo
+
+**Deployed on Render**: [https://ask-hs.onrender.com](https://ask-hs.onrender.com)
+
+The application is deployed on Render with:
+- **Database**: Render PostgreSQL
+- **Cache**: Render Redis for WebSocket functionality
+- **Media Storage**: AWS S3 bucket for profile pictures and media files
+- **Static Files**: Served via WhiteNoise
+- **WebSocket Server**: Daphne (ASGI) for real-time notifications
+
+---
+
+## 🚀 Deployment Configuration
+
+### Environment Variables (Production)
+```bash
+# Django Settings
+SECRET_KEY=your-secret-key
+DEBUG=False
+ALLOWED_HOSTS=ask-hs.onrender.com,localhost,127.0.0.1
+
+# Database (Render PostgreSQL)
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# Redis (Render Redis)
+REDIS_URL=redis://user:password@host:port
+
+# AWS S3 Media Storage
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_STORAGE_BUCKET_NAME=ask-hs-application
+AWS_S3_REGION_NAME=eu-north-1
+```
+
+### Render Build & Start Commands
+- **Build Command**: `pip install -r Requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+- **Start Command**: `daphne -b 0.0.0.0 -p $PORT project.asgi:application`
+
+---
+
+## 💾 Media Storage
+
+The application uses **AWS S3** for media file storage in production:
+- **Profile pictures** are automatically uploaded to S3
+- **Bucket**: `ask-hs-application` (eu-north-1 region)
+- **CDN**: Direct S3 URLs for fast media delivery
+- **Fallback**: Local storage for development environment
+
+---
+
+## 🔧 Local Development Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/django-notifications.git
-   cd django-notifications
+   git clone <repository-url>
+   cd ask.hs
+   ```
+
+2. **Create virtual environment**
+   ```bash
    python -m venv venv
    source venv/bin/activate   # Mac/Linux
    venv\Scripts\activate      # Windows
+   ```
+
+3. **Install dependencies**
+   ```bash
    pip install -r Requirements.txt
+   ```
+
+4. **Environment setup** (create `.env` file)
+   ```bash
+   SECRET_KEY=your-development-secret-key
+   DEBUG=True
+   
+   # Optional: PostgreSQL (otherwise SQLite will be used)
+   DATABASE_URL=postgresql://user:password@localhost:5432/askhs
+   
+   # Optional: Redis for WebSockets
+   REDIS_URL=redis://localhost:6379
+   
+   # Optional: AWS S3 for media (otherwise local storage)
+   AWS_ACCESS_KEY_ID=your-access-key
+   AWS_SECRET_ACCESS_KEY=your-secret-key
+   AWS_STORAGE_BUCKET_NAME=your-bucket-name
+   AWS_S3_REGION_NAME=us-east-1
+   ```
+
+5. **Database setup**
+   ```bash
    python manage.py migrate
    python manage.py createsuperuser
-  Run the development server
-  ```bash
+   ```
+
+6. **Run development server**
+   ```bash
+   # For basic functionality
+   python manage.py runserver
+   
+   # For WebSocket support (recommended)
    daphne -b 127.0.0.1 -p 8000 project.asgi:application
+   ```
