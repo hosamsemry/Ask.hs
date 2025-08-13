@@ -1,15 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+    @media (max-width: 768px) {
+        .buttons {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    .buttons{
+        display: flex;
+        gap: 15px;
+    }
+</style>
 <div class="container">
     <a href="{% url 'profile' viewing_user.username %}" class="btn btn-outline-secondary mb-3"> Back to profile</a>
     <h2>{{ viewing_user.username }}'s {{ list_type }}</h2>
     <ul class="list-group mt-3">
         {% for profile in profiles %}
             <li  style="background-color:transparent;" class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{% url 'profile' profile.user.username %}" class="text-decoration-none fw-bold text-primary">
+                <a href="{% url 'profile' profile.user.username %}" class="text-decoration-none fw-bold text-primary me-3">
                     {{ profile.user.username }}
                 </a>
                 <span style="color:white">{{profile.bio}}</span>
+                <div class="buttons">
                 {% if request.user.userprofile != profile %}
                     {% if profile in request.user.userprofile.following.all %}
                         <a href="{% url 'toggle_follow' profile.user.username %}" class="btn btn-sm btn-outline-danger fw-bold">Unfollow</a>
@@ -23,6 +36,7 @@
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-outline-warning remove-follower fw-bold">Remove</button>
                     </form>
+                </div>
                 {% endif %}
             </li>
         {% empty %}
