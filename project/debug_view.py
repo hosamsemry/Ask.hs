@@ -37,25 +37,47 @@ def debug_s3_view(request):
     html.append(f"<p>DEFAULT_FILE_STORAGE: {settings.DEFAULT_FILE_STORAGE}</p>")
     html.append(f"<p>MEDIA_URL: {settings.MEDIA_URL}</p>")
     
+    # Check STORAGES setting
+    if hasattr(settings, 'STORAGES'):
+        default_storage_backend = settings.STORAGES.get('default', {}).get('BACKEND', 'Not set')
+        html.append(f"<p>STORAGES['default']['BACKEND']: {default_storage_backend}</p>")
+    else:
+        html.append(f"<p style='color:orange'>STORAGES setting: Not configured</p>")
+    
     # Storage test
     html.append("<h2>3. Storage Test</h2>")
     try:
-        html.append(f"<p>Storage class: {default_storage.__class__.__name__}</p>")
+        # Force reload storage
+        from django.utils.module_loading import import_string
+        from django.core.files.storage import storages
         
-        if hasattr(default_storage, 'bucket_name'):
-            html.append(f"<p>S3 Bucket: {default_storage.bucket_name}</p>")
+        # Clear storage cache
+        if hasattr(storages, '_storages'):
+            storages._storages.clear()
         
-        # Test upload
+        # Get fresh storage instance
+        fresh_storage = storages['default']
+        
+        html.append(f"<p>Default Storage class: {default_storage.__class__.__name__}</p>")
+        html.append(f"<p>Fresh Storage class: {fresh_storage.__class__.__name__}</p>")
+        html.append(f"<p>Storage module: {fresh_storage.__class__.__module__}</p>")
+        
+        if hasattr(fresh_storage, 'bucket_name'):
+            html.append(f"<p>S3 Bucket: {fresh_storage.bucket_name}</p>")
+        elif hasattr(default_storage, 'bucket_name'):
+            html.append(f"<p>S3 Bucket (default): {default_storage.bucket_name}</p>")
+        
+        # Test upload with fresh storage
         test_content = ContentFile(b"Render S3 debug test", name="debug_test.txt")
-        saved_name = default_storage.save("debug/render_debug_test.txt", test_content)
-        url = default_storage.url(saved_name)
+        saved_name = fresh_storage.save("debug/render_debug_test.txt", test_content)
+        url = fresh_storage.url(saved_name)
         
         html.append(f"<p style='color:green'>✓ Upload successful: {saved_name}</p>")
         html.append(f"<p style='color:green'>✓ URL: <a href='{url}' target='_blank'>{url}</a></p>")
         
         # Cleanup
-        if default_storage.exists(saved_name):
-            default_storage.delete(saved_name)
+        if fresh_storage.exists(saved_name):
+            fresh_storage.delete(saved_name)
             html.append(f"<p style='color:green'>✓ Test file cleaned up</p>")
             
     except Exception as e:
