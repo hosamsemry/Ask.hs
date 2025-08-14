@@ -543,7 +543,7 @@
                     <div class="question-content-wrapper">
                         <p class="mb-2">
                             <strong>
-                                {% if not q.is_anonymous %}
+                                {% if not q.is_anonymous and q.sender.username %}
                                     <a href="{% url 'profile' q.sender.username %}" class="question-author">{{ q.sender.username }}</a>
                                 {% else %}
                                     <span class="anonymous">Anonymous</span>
