@@ -5,7 +5,9 @@ import os
 dotenv.load_dotenv()
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
+        email = os.getenv('ADMIN_EMAIL')
+        password = os.getenv('ADMIN_PASSWORD')
         User = get_user_model()
         if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser(f'admin', {os.getenv('ADMIN_EMAIL')},{os.getenv('ADMIN_PASSWORD')})
+            User.objects.create_superuser(f'admin', email, password)
             self.stdout.write(self.style.SUCCESS("Superuser created!"))
