@@ -29,10 +29,10 @@
                     class="rounded-circle me-3" width="50" height="50">
                     <div>
                 <div class="fw-semibold">
-                    <span class="answer-author">{{ answer.responder.username }}</span>
+                    <a class="text-decoration-none" href="{% url 'profile' answer.responder.username %}">{{ answer.responder.username }}</a>
                     <span class="text-white small">answered</span>
                     {% if answer.question.sender %}
-                        <span class="question-author">{{ answer.question.sender.username }}</span>
+                        <a class="text-decoration-none" href="{% url 'profile' answer.question.sender.username %}">{{ answer.question.sender.username }}</a>
                         <span class="text-white small">Question</span>
                     {% else %}
                         <span class="text-white small">Anonymous Question</span>
