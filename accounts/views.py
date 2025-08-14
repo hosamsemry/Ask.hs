@@ -99,13 +99,14 @@ class UserProfileView(DetailView):
             questions_qs = (
                 profile_user.questions_received
                 .filter(is_deleted=False)
+                .order_by('-created_at')
                 .select_related('sender')
                 .prefetch_related(
                     Prefetch(
                         'answer',
                         queryset=Answer.objects.select_related('responder', 'question')
-                                              .prefetch_related('likes')
-                                              .order_by('-created_at')
+                                            .prefetch_related('likes')
+                                            .order_by('-created_at')
                     )
                 )
             )
