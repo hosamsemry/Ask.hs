@@ -16,18 +16,31 @@
         ✍️ Ask <span class="text-primary">{{ receiver.username }}</span> a Question
       </h4>
 
-      <!-- Form -->
-      <form method="POST" class="mt-3" style="border:1px solid #f8f9fa59">
-        {% csrf_token %}
-        
-        <div class="mb-1 text-white p-3">
-          {{ form.as_p }}
-        </div>
+      <form method="POST" class="mt-3" >
+    {% csrf_token %}
+    
+    <div class="mb-3 text-white p-3 border">
+        {{ form.content }}
+        {% for error in form.content.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
 
-        <button class="btn btn-success fw-bold px-4 ms-2 mb-2" type="submit">
-          <i class="fas fa-paper-plane me-1"></i> Send Question
+    <div class="form-check mb-3 ms-3 text-white">
+        {{ form.is_anonymous }}
+        {{ form.is_anonymous.label_tag|cut:":" }}
+        {% for error in form.is_anonymous.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="ms-3 mb-2">
+        <button class="btn btn-success fw-bold px-4" type="submit">
+            <i class="fas fa-paper-plane me-1"></i> Send Question
         </button>
-      </form>
+    </div>
+</form>
+
 
     </div>
   </div>
