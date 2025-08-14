@@ -20,7 +20,7 @@
                                 <span class="fw-semibold">From: Anonymous</span>
                             {% endif %}
                         </div>
-                        <p class="mb-2 fs-5">{{ question.content }}</p>
+                        <p class="mb-2 mb-3 mt-3 fs-5">Q: {{ question.content }}</p>
                         <div class="d-flex gap-2">
                             <a href="{% url 'answer_question' question.id %}" class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-reply me-1"></i> Answer
