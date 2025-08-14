@@ -225,6 +225,13 @@
   <div class="auth-card">
     <h1 class="auth-title">Welcome Back</h1>
     
+    {% if form.non_field_errors %}
+      <div class=" text-danger">
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
     <form method="post">
     {% csrf_token %}
     

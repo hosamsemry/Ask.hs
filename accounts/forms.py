@@ -53,7 +53,18 @@ class LoginForm(forms.Form):
 
         if not email or not password:
             raise forms.ValidationError("Both fields are required.")
-        
+        try:
+            user = UserAccount.objects.get(email=email)
+            if not user.is_active:
+                raise forms.ValidationError("Email doesn't exist.")
+            try:
+                profile = user.userprofile
+                if profile.is_deleted:
+                    raise forms.ValidationError("Email doesn't exist.")
+            except UserProfile.DoesNotExist:
+                raise forms.ValidationError("Email doesn't exist.")
+        except UserAccount.DoesNotExist:
+            raise forms.ValidationError("Email doesn't exist.")
         return cleaned_data
     
 class UserProfileForm(forms.ModelForm):
