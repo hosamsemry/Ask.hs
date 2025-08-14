@@ -4,118 +4,298 @@
 
 {% block content %}
 <style>
-    body{
-    background-image: url("../../media/auth/register.jpg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
+  .auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
   }
-    .register-container {
-        background-color: #f9f9f9;
-        padding: 30px 40px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 420px;
-        margin: 50px auto;
-    }
 
-    h1 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 25px;
-    }
+  .auth-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.6s ease-out;
+    position: relative;
+    overflow: hidden;
+  }
 
-    form {
-        background-color: #f9f9f9;
-        padding: 15px;
-        color: #333;
-    }
+  .auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue), var(--neon-purple));
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
 
-    label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 1.1rem;
+  @keyframes slideInUp {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
     }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 
-    input[type="email"],
+  @keyframes shimmer {
+    0%, 100% { background-position: 200% 0; }
+    50% { background-position: -200% 0; }
+  }
+
+  .auth-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--white-text);
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--light-text);
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--white-text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--neon-green);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .form-control::placeholder {
+    color: var(--muted-text);
+  }
+  input[type="email"],
     input[type="password"] {
         width: 100%;
         padding: 8px;
         margin-bottom: 12px;
+        background-color: #eceaea;
         border: 1px solid #ccc;
         border-radius: 4px;
         font-size: .95rem;
     }
+  .btn-primary {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+    border: none;
+    border-radius: 12px;
+    color: var(--white-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
 
-    button {
-        padding: 10px 15px;
-        background-color: #28a745;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: bold;
-        width: 100%;
-    }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
 
-    button:hover {
-        background-color: #218838;
-    }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4);
+  }
 
-    .errors {
-        color: red;
-        margin-bottom: 20px;
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .auth-link {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--muted-text);
+    font-size: 0.95rem;
+  }
+
+  .auth-link a {
+    color: var(--neon-green);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .auth-link a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+    transition: width 0.3s ease;
+  }
+
+  .auth-link a:hover {
+    color: var(--white-text);
+    text-shadow: 0 0 10px var(--neon-green);
+  }
+
+  .auth-link a:hover::after {
+    width: 100%;
+  }
+
+  .errorlist {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    list-style: none;
+    color: #ff6b6b;
+    font-size: 0.9rem;
+  }
+
+  .errorlist li {
+    margin-bottom: 0.25rem;
+  }
+
+  .errorlist li:last-child {
+    margin-bottom: 0;
+  }
+
+  .errors {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .errors ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #ff6b6b;
+    font-size: 0.9rem;
+  }
+
+  .errors li {
+    margin-bottom: 0.25rem;
+  }
+
+  .errors li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .auth-card {
+      padding: 2rem 1.5rem;
+      margin: 1rem;
     }
+    
+    .auth-title {
+      font-size: 1.75rem;
+    }
+  }
 </style>
 
-<div class="register-container">
-    <h1>Register now</h1>
-{% if form.non_field_errors %}
-    <div class="errors">
-        <ul style="color: red;list-style: none;">
-            {% for error in form.non_field_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
+<div class="auth-container">
+  <div class="auth-card">
+    <h1 class="auth-title">Join Ask.hs</h1>
+    
+    {% if form.non_field_errors %}
+      <div class="errors">
+        <ul>
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
         </ul>
-    </div>
-{% endif %}
+      </div>
+    {% endif %}
 
     {% if form.errors %}
-        <div class="errors">
-            <ul>
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
+      <div class="errors">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
     {% endif %}
 
     <form method="post">
-        {% csrf_token %}
-        
-        <div>
-            <label for="{{ form.email.id_for_label }}">Email:</label>
-            {{ form.email }}
+    {% csrf_token %}
+    
+    {% for field in form %}
+        <div class="form-group">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}  <!-- Render the input box here -->
+            
+            {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
+    {% endfor %}
+    
+    <button type="submit" class="btn-primary">Create Account</button>
+</form>
 
-        <div>
-            <label for="{{ form.password1.id_for_label }}">Password:</label>
-            {{ form.password }}
-        </div>
-
-        <div>
-            <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
-            {{ form.confirm_password }}
-        </div>
-
-        <button type="submit">Register</button>
-    </form>
-    <p class="mt-3 text-center">
-        Already have an account? <a href="{% url 'login' %}">Login here</a>
+    
+    <p class="auth-link">
+      Already have an account?
+      <a href="{% url 'login' %}">Sign in here</a>
     </p>
+  </div>
 </div>
 {% endblock %}
