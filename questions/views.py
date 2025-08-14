@@ -89,6 +89,8 @@ def delete_question(request, question_id):
     question = get_object_or_404(Question, id=question_id, receiver=request.user)
     question.is_deleted = True
     question.save()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.accepts('application/json'):
+        return JsonResponse({'success': True, 'question_id': question_id})
     return redirect('profile', request.user.username)
 
 @login_required
