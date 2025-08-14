@@ -104,7 +104,8 @@ class UserProfileView(DetailView):
                     Prefetch(
                         'answer',
                         queryset=Answer.objects.select_related('responder', 'question')
-                                                .prefetch_related('likes')
+                                              .prefetch_related('likes')
+                                              .order_by('-created_at')
                     )
                 )
             )
@@ -128,7 +129,6 @@ class UserProfileView(DetailView):
             context['visitors'] = visitors
 
         return context
-    
 class EditProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
