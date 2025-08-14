@@ -2,32 +2,68 @@
 {% block title %}Questions{% endblock %}
 
 {% block content %}
+<style>
+    .question-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.25s ease;
+    }
+    .question-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .question-meta {
+        font-size: 0.85rem;
+        color: #adb5bd;
+    }
+    .question-content {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        color: #f8f9fa;
+    }
+</style>
+
 <div class="container mt-2">
-    <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-primary mb-3">
+    <a href="{% url 'profile' request.user.username %}" class="btn btn-outline-primary mb-4">
         <i class="fas fa-arrow-left me-1"></i> Back to Profile
     </a>
-    <h2 class="mb-4">Questions</h2>
+
+    <h2 class="fw-bold text-white mb-4">
+        <i class="fas fa-question-circle me-2 text-primary"></i> Your Questions
+    </h2>
 
     {% if questions %}
-        <div class="list-group">
+        <div class="row g-4">
             {% for question in questions %}
-                <div style="background-color:transparent;" class="list-group-item list-group-item-action mb-3 shadow-sm rounded border d-flex flex-column flex-md-row justify-content-between align-items-start p-3 text-white">
-                    <div class="flex-grow-1 me-3">
-                        <div class="mb-1 small">
-                            {% if question.sender %}
-                                From: <a href="{% url 'profile' question.sender %}" class="fw-semibold text-decoration-none">{{ question.sender.username }}</a>
-                            {% else %}
-                                <span class="fw-semibold">From: Anonymous</span>
-                            {% endif %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="question-card p-4 rounded-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="question-meta mb-2">
+                                {% if question.sender %}
+                                    From: 
+                                    <a href="{% url 'profile' question.sender.username %}" 
+                                       class="fw-semibold text-decoration-none text-primary">
+                                       {{ question.sender.username }}
+                                    </a>
+                                {% else %}
+                                    From: <span class="fw-semibold text-warning">Anonymous</span>
+                                {% endif %}
+                                <div>{{ question.created_at|date:"M d, Y · H:i" }}</div>
+                            </div>
+                            <p class="question-content mt-3">Q: {{ question.content }}</p>
                         </div>
-                        <p class="mb-2 mb-3 mt-3 fs-5">Q: {{ question.content }}</p>
-                        <div class="d-flex gap-2">
-                            <a href="{% url 'answer_question' question.id %}" class="btn btn-outline-success btn-sm">
+
+                        <div class="mt-3 d-flex gap-2 flex-wrap">
+                            <a href="{% url 'answer_question' question.id %}" 
+                               class="btn btn-success btn-sm px-3 fw-semibold">
                                 <i class="fas fa-reply me-1"></i> Answer
                             </a>
-                            <form method="POST" action="{% url 'delete_question' question.id %}" class="delete-question-form d-inline">
+                            <form method="POST" 
+                                  action="{% url 'delete_question' question.id %}" 
+                                  class="delete-question-form d-inline" data-question-id="{{ question.id }}">
                                 {% csrf_token %}
-                                <button type="button" class="btn btn-outline-danger btn-sm delete-question-btn">
+                                <button type="button" 
+                                        class="btn btn-danger btn-sm px-3 fw-semibold delete-question-btn">
                                     <i class="fas fa-trash-alt me-1"></i> Delete
                                 </button>
                             </form>
@@ -37,8 +73,8 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="alert alert-info" role="alert">
-            You have no questions, yet.
+        <div class="alert alert-info shadow-sm" role="alert">
+            <i class="fas fa-info-circle me-2"></i> You have no questions yet.
         </div>
     {% endif %}
 </div>
@@ -47,21 +83,48 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.delete-question-btn').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             const form = this.closest('form');
-
+            const questionId = form.getAttribute('data-question-id');
+            const card = form.closest('.question-card');
             Swal.fire({
                 title: 'Are you sure?',
                 text: "This question will be permanently deleted.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#8e959cff',
+                cancelButtonColor: '#8e959c',
                 confirmButtonText: 'Yes, delete it!',
                 scrollbarPadding: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            card.remove();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'The question has been deleted.',
+                                timer: 800,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', 'Failed to delete question.', 'error');
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire('Error', 'Failed to delete question.', 'error');
+                    });
                 }
             });
         });
