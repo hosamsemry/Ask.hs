@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.utils.encoding import force_str
+from django.contrib.auth import logout
+from django.contrib import messages
 
 User = get_user_model()
 from django.core.cache import cache
@@ -19,7 +21,16 @@ class Home(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        user_id = self.request.user.id
+        user = self.request.user
+        try:
+            user_profile = UserProfile.objects.filter(is_deleted=False).prefetch_related('following__user').get(user=user)
+        except UserProfile.DoesNotExist:
+            logout(self.request)
+            messages.error(self.request, "Your account has been deleted or deactivated.")
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("User profile does not exist or is deleted.")
+
+        user_id = user.id
         page_number = force_str(self.request.GET.get('page', 1))
         cache_key = f"user_feed:{user_id}:page:{page_number}"
 
@@ -27,11 +38,6 @@ class Home(LoginRequiredMixin, ListView):
         if queryset is not None:
             return queryset
 
-        user_profile = (
-            UserProfile.objects.filter(is_deleted=False)
-            .prefetch_related('following__user')
-            .get(user=self.request.user)
-        )
         following_users_ids = user_profile.following.all().values_list('user__id', flat=True)
 
         queryset = (
@@ -54,8 +60,16 @@ def search_users(request):
     if not query:
         return JsonResponse({'users': []})
 
-    starts_with = User.objects.filter(is_active=True,username__istartswith=query)
-    contains = User.objects.filter(is_active=True,username__icontains=query).exclude(id__in=starts_with.values_list('id', flat=True))
+    starts_with = User.objects.filter(
+        is_active=True,
+        userprofile__is_deleted=False,
+        username__istartswith=query
+    )
+    contains = User.objects.filter(
+        is_active=True,
+        userprofile__is_deleted=False,
+        username__icontains=query
+    ).exclude(id__in=starts_with.values_list('id', flat=True))
 
     results = list(starts_with.values('username')) + list(contains.values('username'))
     return JsonResponse({'users': results})

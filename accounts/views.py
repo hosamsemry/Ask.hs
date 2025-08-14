@@ -300,6 +300,7 @@ def deleted_account(request):
         profile = request.user.userprofile
         user = request.user
         user.is_active = False
+        user.save()
         profile.is_deleted = True
         profile.save()
         logout(request)
