@@ -576,9 +576,9 @@
                     </div>
                     </a>
                     {% if q.receiver == user %}
-                        <form method="POST" action="{% url 'delete_question' q.id %}" class="delete-form">
+                        <form method="POST" action="{% url 'delete_question' q.id %}" class="delete-form" data-question-id="{{ q.id }}">
                             {% csrf_token %}
-                            <button type="submit" class="delete-question-btn">Delete</button>
+                            <button type="button" class="delete-question-btn">Delete</button>
                         </form>
                     {% endif %}
                 </div>
@@ -599,7 +599,8 @@
             button.addEventListener('click', function (event) {
                 event.preventDefault();
                 const form = this.closest('form');
-
+                const questionId = form.getAttribute('data-question-id');
+                const card = form.closest('.question-card') || form.closest('.answer-item') || form.closest('.question-item') || form.parentElement;
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "This question will be permanently deleted.",
@@ -611,7 +612,31 @@
                     scrollbarPadding: false
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        form.submit();
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (card) card.remove();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Deleted!',
+                                    text: 'The question has been deleted.',
+                                    timer: 800,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', 'Failed to delete question.', 'error');
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire('Error', 'Failed to delete question.', 'error');
+                        });
                     }
                 });
             });
