@@ -60,16 +60,8 @@ def search_users(request):
     if not query:
         return JsonResponse({'users': []})
 
-    starts_with = User.objects.filter(
-        is_active=True,
-        userprofile__is_deleted=False,
-        username__istartswith=query
-    )
-    contains = User.objects.filter(
-        is_active=True,
-        userprofile__is_deleted=False,
-        username__icontains=query
-    ).exclude(id__in=starts_with.values_list('id', flat=True))
+    starts_with = User.objects.filter(is_active=True, username__istartswith=query)
+    contains = User.objects.filter(is_active=True, username__icontains=query).exclude(id__in=starts_with.values_list('id', flat=True))
 
     results = list(starts_with.values('username')) + list(contains.values('username'))
     return JsonResponse({'users': results})
