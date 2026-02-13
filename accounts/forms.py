@@ -87,8 +87,6 @@ class UserProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        self.fields['picture'].widget.attrs.update({'class': 'form-control'})
-
         if self.instance and self.instance.user:
             self.fields['username'].initial = self.instance.user.username
 
