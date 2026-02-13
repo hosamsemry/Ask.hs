@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'core',
     'user_notifications',
     'channels',
-    'storages'
 ]
 ASGI_APPLICATION = 'project.asgi.application'
 
@@ -186,26 +185,9 @@ STATICFILES_DIRS = [
 # Whitenoise configuration for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files configuration - Use AWS S3 for media storage
-if not DEBUG and AWS_STORAGE_BUCKET_NAME:
-    # Production: Use AWS S3 for media files
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
-    
-    # Django 4.2+ STORAGES setting (more reliable)
-    STORAGES = {
-        "default": {
-            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
-else:
-    # Development: Use local storage
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Security settings for production
 if not DEBUG:
